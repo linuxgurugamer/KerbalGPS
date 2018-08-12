@@ -61,6 +61,7 @@ namespace KerbStar.GPSToolbar
 
         public  void Awake()
         {
+            Instance = this;
         }
 
         public  void Start()
