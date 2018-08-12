@@ -41,6 +41,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
 
+using ClickThroughFix;
+
 namespace KerbStar
 {
     public class KerbalGPS : PartModule
@@ -585,7 +587,7 @@ namespace KerbStar
                 if ((this.part.State != PartStates.DEAD) && (this.vessel.isActiveVessel))
                 {
                     GUI.skin = HighLogic.Skin;
-                    varWindowPos = GUILayout.Window(giWindowID, varWindowPos, WindowGUI, "Figaro - " + gsModeString, GUILayout.MinWidth(GPS_GUI_WIDTH), GUILayout.MaxHeight(GPS_GUI_HEIGHT));
+                    varWindowPos = ClickThruBlocker.GUILayoutWindow(giWindowID, varWindowPos, WindowGUI, "Figaro - " + gsModeString, GUILayout.MinWidth(GPS_GUI_WIDTH), GUILayout.MaxHeight(GPS_GUI_HEIGHT));
                 }
                 else
                 {
@@ -684,7 +686,7 @@ namespace KerbStar
         
         public void Start()
         {
-             GPSToolbar.AppLauncherKerbalGPS.Start();
+             GPSToolbar.AppLauncherKerbalGPS.localStart(this.gameObject);
         }
         
         public void OnDestroy()

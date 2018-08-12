@@ -21,18 +21,31 @@
 
 using KSP.UI.Screens;
 using UnityEngine;
+using ToolbarControl_NS;
 
 namespace KerbStar.GPSToolbar
 {
-    public static class AppLauncherKerbalGPS
+    [KSPAddon(KSPAddon.Startup.MainMenu, true)]
+    public class RegisterToolbar : MonoBehaviour
     {
-        private static ApplicationLauncherButton btnLauncher;
-        private static Texture2D kgps_button_off;
-        private static Texture2D kgps_button_on_nosat;
-        private static Texture2D kgps_button_on_sat;
-        private static Texture2D kgps_button_Texture;
-        private static Texture2D kgps_button_nogps;
-        private static Texture2D tex2d;
+        void Start()
+        {
+            ToolbarControl.RegisterMod(AppLauncherKerbalGPS.MODID, AppLauncherKerbalGPS.MODNAME);
+        }
+    }
+    public class AppLauncherKerbalGPS : MonoBehaviour
+    {
+        //private static ApplicationLauncherButton btnLauncher;
+        static ToolbarControl toolbarControl;
+        internal const string MODID = "KerbalGPS_NS";
+        internal const string MODNAME = "KerbalGPS";
+
+        private static string kgps_button_off;
+        private static string kgps_button_on_nosat;
+        private static string kgps_button_on_sat;
+        private static string kgps_button_Texture;
+        private static string kgps_button_nogps;
+        private static string tex2d;
         public static bool displayGUI;
 
         public enum rcvrStatus
@@ -47,22 +60,26 @@ namespace KerbStar.GPSToolbar
         {
         }
 
-        public static void Start()
+        public static void localStart(GameObject gameObject)
         {
-            if (!kgps_button_off && GameDatabase.Instance.ExistsTexture("KerbalGPS/Icon/GPSIconOff")) kgps_button_off = GameDatabase.Instance.GetTexture("KerbalGPS/Icon/GPSIconOff", false);
-            if (!kgps_button_on_sat && GameDatabase.Instance.ExistsTexture("KerbalGPS/Icon/GPSIconSat")) kgps_button_on_sat = GameDatabase.Instance.GetTexture("KerbalGPS/Icon/GPSIconSat", false);
-            if (!kgps_button_on_nosat && GameDatabase.Instance.ExistsTexture("KerbalGPS/Icon/GPSIconNoSat")) kgps_button_on_nosat = GameDatabase.Instance.GetTexture("KerbalGPS/Icon/GPSIconNoSat", false);
-            if (!kgps_button_nogps && GameDatabase.Instance.ExistsTexture("KerbalGPS/Icon/GPSIconNoGPS")) kgps_button_nogps = GameDatabase.Instance.GetTexture("KerbalGPS/Icon/GPSIconNoGPS", false);
+            kgps_button_off = "KerbalGPS/Icon/GPSIconOff";
+            kgps_button_on_sat = "KerbalGPS/Icon/GPSIconSat";
+            kgps_button_on_nosat = "KerbalGPS/Icon/GPSIconNoSat";
+            kgps_button_nogps = "KerbalGPS/Icon/GPSIconNoGPS";
             tex2d = kgps_button_nogps;
 
-            if (btnLauncher == null)
+            if (toolbarControl == null)
             {
-                btnLauncher = ApplicationLauncher.Instance.AddModApplication(OnToggleTrue, OnToggleFalse,
-                                                                             null, null,
-                                                                             null, null,
-                                                                             ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
-                                                                             tex2d);
-                MonoBehaviour.print("[KerbalGPS] Adding Toolbar button");
+                toolbarControl = gameObject.AddComponent<ToolbarControl>();
+                toolbarControl.AddToAllToolbars(OnToggleTrue, OnToggleFalse,
+                    ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
+                    MODID,
+                    "kerbalgpsButton",
+                    kgps_button_nogps + "-38",
+                    kgps_button_nogps + "-24",
+                    MODNAME
+                );
+
             }
         }
 
@@ -79,9 +96,9 @@ namespace KerbStar.GPSToolbar
         public static void setBtnState(bool state, bool click = false)
         {
             if (state)
-                btnLauncher.SetTrue(click);
+                toolbarControl.SetTrue(click);
             else
-                btnLauncher.SetFalse(click);
+                toolbarControl.SetFalse(click);
         }
 
         public static void SetAppLauncherButtonTexture(rcvrStatus status)
@@ -105,23 +122,23 @@ namespace KerbStar.GPSToolbar
             }
 
             // Set new Launcher Button texture
-            if (btnLauncher != null)
+            if (toolbarControl != null)
             {
                 if (tex2d != kgps_button_Texture)
                 {
                     kgps_button_Texture = tex2d;
-                    btnLauncher.SetTexture(tex2d);
+                    toolbarControl.SetTexture(tex2d + "38", tex2d + "-24");
                 }
             }
         }
 
         public static void OnDestroy()
         {
-            if (btnLauncher != null)
+            if (toolbarControl != null)
             {
-                MonoBehaviour.print("[KerbalGPS] Removing Toolbar button");
-                ApplicationLauncher.Instance.RemoveModApplication(btnLauncher);
-                btnLauncher = null;
+                toolbarControl.OnDestroy();
+                Destroy(toolbarControl);
+                toolbarControl = null;
             }
         }
     }

@@ -1,0 +1,30 @@
+{
+  "NAME": "KerbalGPS",
+  "URL": "https://raw.githubusercontent.com/linuxgurugamer/KerbalGPS/master/KerbalGPS.version",
+    "DOWNLOAD": "https://github.com/linuxgurugamer/KerbalGPS/releases",
+  "GITHUB": {
+    "USERNAME": "linuxgurugamer",
+    "REPOSITORY": "KerbalGPS"
+  },
+  "VERSION": {
+    "MAJOR": 1,
+    "MINOR": 1,
+    "PATCH": 0,
+    "BUILD": 0
+  },
+  "KSP_VERSION": {
+    "MAJOR": 1,
+    "MINOR": 4,
+    "PATCH": 1
+  },
+  "KSP_VERSION_MIN": {
+    "MAJOR": 1,
+    "MINOR": 4,
+    "PATCH": 1
+  },
+  "KSP_VERSION_MAX": {
+    "MAJOR": 1,
+    "MINOR": 4,
+    "PATCH": 99
+  }
+}

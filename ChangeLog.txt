@@ -1,0 +1,6 @@
+1.1.0
+	Adoption by Linuxgurugamer
+	Updated for 1.4.x
+	Added support for ToolbarController
+	Added support for ClickThroughBlocker
+	Updated part configs
