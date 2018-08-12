@@ -586,7 +586,8 @@ namespace KerbStar
             {
                 if ((this.part.State != PartStates.DEAD) && (this.vessel.isActiveVessel))
                 {
-                    GUI.skin = HighLogic.Skin;
+                    if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useKSPskin)
+                        GUI.skin = HighLogic.Skin;
                     varWindowPos = ClickThruBlocker.GUILayoutWindow(giWindowID, varWindowPos, WindowGUI, "Figaro - " + gsModeString, GUILayout.MinWidth(GPS_GUI_WIDTH), GUILayout.MaxHeight(GPS_GUI_HEIGHT));
                 }
                 else
