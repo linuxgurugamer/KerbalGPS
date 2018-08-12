@@ -116,8 +116,7 @@ namespace KerbStar
         private System.String gsLonDeg = "74";
         private System.String gsLonMin = "34.5";
         private System.String gsLonEW = "W";
-        private System.String gsModeString = "Position";
-        private System.String gsButtonString = "Show Destination";
+        private System.String gsModeString = "Position";        
 
         private NumberStyles varStyle = NumberStyles.Any;
         private CultureInfo varCulture = CultureInfo.CreateSpecificCulture("en-US");
@@ -165,6 +164,8 @@ namespace KerbStar
 
         public override void OnLoad(ConfigNode node)
         {
+            if (!HighLogic.LoadedSceneIsFlight)
+                return;
             clsGPSMath.Reset();
             gyKerbalGPSInitialised = false;
 
@@ -173,33 +174,6 @@ namespace KerbStar
             gLastSVCheckTime = DateTime.Now;
 
             base.OnLoad(node);
-        }
-
-
-        /********************************************************************************************
-        Function Name: OnAwake
-        Parameters: see function definition
-        Return: void
-         
-        Description: Called when the part is loaded, this can be more than once.
-         
-        *********************************************************************************************/
-
-        public override void OnAwake()
-        {
-            clsGPSMath.Reset();
-
-            Events["DeactivateReceiver"].active = true;
-            Events["ActivateReceiver"].active = false;
-            gyReceiverOn = true;
-
-            gyKerbalGPSInitialised = false;
-            giLastVesselCount = 0;
-            gyReceiverOn = true;
-            gbDisplayMode = MODE_GPS_POSITION;
-            gLastSVCheckTime = DateTime.Now;
-
-            base.OnAwake();
         }
 
 
@@ -214,6 +188,10 @@ namespace KerbStar
 
         public override void OnSave(ConfigNode node)
         {
+            if (!HighLogic.LoadedSceneIsFlight)
+                return;
+
+            
             this.part.customPartData = "[GPS Dest:," + gfDestLat.ToString() + "," + gfDestLon.ToString() + "]";
 
             base.OnSave(node);
@@ -229,8 +207,11 @@ namespace KerbStar
          
         *********************************************************************************************/
 
-        public override void OnUpdate()
+        public void Update()
         {
+            if (!HighLogic.LoadedSceneIsFlight)
+                return;
+
             checkMaster();
 
             if (amIMaster)
@@ -295,46 +276,37 @@ namespace KerbStar
                             gfDeltaTime = 0.0f;
                         }
 
-                        if (amIMaster)
+                     
+                        if (gyReceiverOn)
                         {
-                            if (gyReceiverOn)
+                            if (guNumSats >= 4)
                             {
-                                if (guNumSats >= 4)
-                                {
-                                    GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.SATS);
-                                }
-                                else
-                                {
-                                    GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.NOSATS);
-                                }
+                                GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.SATS);
                             }
                             else
                             {
-                                GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.OFF);
+                                GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.NOSATS);
                             }
                         }
-                        else print("[KERBALGPS] no master");
-                        //else
-                        //{
-                        //    GPSToolbar.AppLauncherKerbalGPS.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.OFF);
-                        //}
+                        else
+                        {
+                            GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.OFF);
+                        }
+
                     }
                     else
                     {
                         Initialise_KerbalGPS();
                     }
                 }
-
-                //if (!this.vessel.isActiveVessel)
-                //{
-                //    GPSToolbar.AppLauncherKerbalGPS.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.NONE);
-                //}
-                //else
-                //{
-                //    // GPSToolbar.AppLauncherKerbalGPS.Start();
-                //}
             }
-            base.OnUpdate();
+            else
+            {
+                if (vessel.isActiveVessel)
+                    GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.OFF);
+            }
+
+            //base.OnUpdate();
         }
 
 
@@ -362,13 +334,17 @@ namespace KerbStar
                     GNSSSatelliteNames.Clear();
                     giLastVesselCount = FlightGlobals.Vessels.Count;
 
-                    foreach (Vessel varVessel in FlightGlobals.Vessels)
+                    for (int i = FlightGlobals.Vessels.Count - 1; i >= 0; i--)
+                    //foreach (Vessel varVessel in FlightGlobals.Vessels)
                     {
+                        Vessel varVessel = FlightGlobals.Vessels[i];
                         // proceed if vessel being checked has a command pod, is orbiting the same celestial object and is not the active vessel
                         if ((varVessel.isCommandable) && (vessel.mainBody == varVessel.mainBody) && (varVessel != vessel))
                         {
-                            foreach (ProtoPartSnapshot varPart in varVessel.protoVessel.protoPartSnapshots)
+                            for (int x = varVessel.protoVessel.protoPartSnapshots.Count - 1; x >= 0; x--)
+                            //foreach (ProtoPartSnapshot varPart in varVessel.protoVessel.protoPartSnapshots)
                             {
+                                ProtoPartSnapshot varPart = varVessel.protoVessel.protoPartSnapshots[x];
                                 if (varPart.partName.GetHashCode() == giTransmitterID)
                                 {
                                     GNSSSatelliteNames.Add(varVessel.name);
@@ -420,27 +396,24 @@ namespace KerbStar
 
             if (gyReceiverOn)
             {
-                if (GUILayout.Button(gsButtonString, varButtonStyle))
+                GUILayout.BeginHorizontal();
+                if (GUILayout.Button("Show Destination"))
                 {
-                    gbDisplayMode++;
-                    gbDisplayMode %= 3;
-    
-                    if (gbDisplayMode == MODE_GPS_POSITION)
-                    {
-                        gsModeString = "Position";
-                        gsButtonString = "Show Destination";
-                    }
-                    else if (gbDisplayMode == MODE_GPS_DESTINATION)
-                    {
-                        gsModeString = "Destination";
-                        gsButtonString = "Show Status";
-                    }
-                    else
-                    {
-                        gsModeString = "Status";
-                        gsButtonString = "Show Position";
-                    }
+                    gbDisplayMode = MODE_GPS_DESTINATION;
+                    gsModeString = "Destination";
                 }
+                if (GUILayout.Button("Show Status"))
+                {
+                    gbDisplayMode = MODE_GPS_STATUS;
+                    gsModeString = "Status";
+                }
+                if (GUILayout.Button("Show Position"))
+                {
+                    gbDisplayMode = MODE_GPS_POSITION;
+                    gsModeString = "Position";
+                }
+                GUILayout.EndHorizontal();
+
     
                 if (gbDisplayMode == MODE_GPS_POSITION)
                 {
@@ -468,7 +441,7 @@ namespace KerbStar
 
             GUILayout.EndVertical();
 
-            GUI.DragWindow(new Rect(0, 0, 10000, 20));
+            GUI.DragWindow();
 
         }
 
@@ -619,6 +592,7 @@ namespace KerbStar
         [KSPEvent(guiActive = true, guiName = "Turn on receiver", name = "Figaro GNSS Receiver")]
         public void ActivateReceiver()
         {
+            Log.Info("ActivateReceiver");
             Find_GNSS_Satellites();
             Events["DeactivateReceiver"].active = true;
             Events["ActivateReceiver"].active = false;
@@ -642,6 +616,7 @@ namespace KerbStar
         [KSPEvent(guiActive = true, guiName = "Turn off receiver", name = "Figaro GNSS Receiver")]
         public void DeactivateReceiver()
         {
+            Log.Info("DeactivateReceiver");
             Events["DeactivateReceiver"].active = false;
             Events["ActivateReceiver"].active = true;
             gyReceiverOn = false;
@@ -665,8 +640,8 @@ namespace KerbStar
         {
             if (!gyKerbalGPSInitialised)
             {
-                print("[KerbalGPS] Loaded Version " + strVersion + "." + strKSPVersion + "." + strSubVersion);
-                print("[KerbalGPS] Reference GNSS Acronym: " + GNSSacronym);
+                Log.Error("[KerbalGPS] Loaded Version " + strVersion + "." + strKSPVersion + "." + strSubVersion);
+                Log.Error("[KerbalGPS] Reference GNSS Acronym: " + GNSSacronym);
 
                 gyKerbalGPSInitialised = true;
                 giLastVesselCount = 0;
@@ -687,11 +662,27 @@ namespace KerbStar
         
         public void Start()
         {
+            Log.Info("Start");
+
+            if (!HighLogic.LoadedSceneIsFlight)
+                return;
+            clsGPSMath.Reset();
+
+            Events["DeactivateReceiver"].active = true;
+            Events["ActivateReceiver"].active = false;
+            gyReceiverOn = true;
+
+            gyKerbalGPSInitialised = false;
+            giLastVesselCount = 0;
+
+            gbDisplayMode = MODE_GPS_POSITION;
+            gLastSVCheckTime = DateTime.Now;
             // GPSToolbar.AppLauncherKerbalGPS.localStart(this.gameObject);
         }
         
         public void OnDestroy()
         {
+            Log.Info("OnDestroy");
             CleanUp();
         }
 
@@ -791,9 +782,10 @@ namespace KerbStar
                 masterSet = false;
                 amIMaster = false;
             }
-
-            foreach (Part part in vessel.parts)
+            for (int i = vessel.parts.Count -1; i >=0; i--)
+            //foreach (Part part in vessel.parts)
             {
+                Part part = vessel.parts[i];
                 module = part.Modules.GetModule<KerbalGPS>();
                 if (module != null)
                 {
@@ -808,8 +800,11 @@ namespace KerbStar
 
             if (vessel.isActiveVessel && !masterSet)
             {
-                foreach (Part part in vessel.parts)
+                for (int i = vessel.parts.Count - 1; i >= 0; i--)
+                //foreach (Part part in vessel.parts)
                 {
+                    Part part = vessel.parts[i];
+ 
                     module = part.Modules.GetModule<KerbalGPS>();
                     if (module != null)
                     {

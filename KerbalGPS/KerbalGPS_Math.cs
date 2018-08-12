@@ -176,14 +176,18 @@ class GPS_Calculations
             fKerbinPos = clsLocalKerbalGPSReference.vessel.transform.worldToLocalMatrix * fKerbinPos;
             float fHorizonAngle = (Mathf.PI / 2.0f) - Mathf.Acos((float)(clsLocalKerbalGPSReference.vessel.mainBody.Radius / fKerbinPos.magnitude));
 
-            foreach (Vessel varVessel in FlightGlobals.Vessels)
+            for (int i = FlightGlobals.Vessels.Count - 1; i >= 0; i--)
+            //foreach (Vessel varVessel in FlightGlobals.Vessels)
             {
+                Vessel varVessel = FlightGlobals.Vessels[i];
                 if (strAcronym == NULL_ACRONYM)
                 {
                     if( varVessel.isCommandable )
                     {
-                        foreach (Guid varGuid in clsLocalKerbalGPSReference.GNSSSatelliteIDs)
+                        for (int x = clsLocalKerbalGPSReference.GNSSSatelliteIDs.Count -1; x >= 0; x-- )
+                        //foreach (Guid varGuid in clsLocalKerbalGPSReference.GNSSSatelliteIDs)
                         {
+                            Guid varGuid = clsLocalKerbalGPSReference.GNSSSatelliteIDs[x];
                             if (varVessel.id == varGuid)
                             {
                                 Find_Distances_to_Satellites(varVessel, fKerbinPos, fPosition, fHorizonAngle, ref uNumSats);

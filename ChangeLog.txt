@@ -1,3 +1,11 @@
+1.1.0.2
+	Replaced foreach with for loops
+	Changed GUI.Dragwindow to do the whole window
+	Rewrite main module to use standard KSP part module sections
+
+1.1.0.1
+	Fixed nullrefs caused by AppLauncher not setting Instnace properly
+
 1.1.0
 	Adoption by Linuxgurugamer
 	Updated for 1.4.x

@@ -79,8 +79,8 @@ namespace KerbStar.GPSToolbar
                     ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
                     MODID,
                     "kerbalgpsButton",
-                    kgps_button_nogps + "-38",
-                    kgps_button_nogps + "-24",
+                    kgps_button_off + "-38",
+                    kgps_button_off + "-24",
                     MODNAME
                 );
 
@@ -107,8 +107,8 @@ namespace KerbStar.GPSToolbar
 
         public  void SetAppLauncherButtonTexture(rcvrStatus status)
         {
-            tex2d = null;
-
+            Log.Info("SetAppLauncherButtonTexture, status: " + status);
+            
             switch (status)
             {
                 case rcvrStatus.OFF:
@@ -131,7 +131,7 @@ namespace KerbStar.GPSToolbar
                 if (tex2d != kgps_button_Texture)
                 {
                     kgps_button_Texture = tex2d;
-                    toolbarControl.SetTexture(tex2d + "38", tex2d + "-24");
+                    toolbarControl.SetTexture(tex2d + "-38", tex2d + "-24");
                 }
             }
         }
