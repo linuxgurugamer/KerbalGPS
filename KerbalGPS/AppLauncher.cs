@@ -33,8 +33,11 @@ namespace KerbStar.GPSToolbar
             ToolbarControl.RegisterMod(AppLauncherKerbalGPS.MODID, AppLauncherKerbalGPS.MODNAME);
         }
     }
+    [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class AppLauncherKerbalGPS : MonoBehaviour
     {
+        public static AppLauncherKerbalGPS Instance;
+
         //private static ApplicationLauncherButton btnLauncher;
         static ToolbarControl toolbarControl;
         internal const string MODID = "KerbalGPS_NS";
@@ -46,7 +49,7 @@ namespace KerbStar.GPSToolbar
         private static string kgps_button_Texture;
         private static string kgps_button_nogps;
         private static string tex2d;
-        public static bool displayGUI;
+        public bool displayGUI;
 
         public enum rcvrStatus
         {
@@ -56,11 +59,11 @@ namespace KerbStar.GPSToolbar
             NONE = 3
         }
 
-        public static void Awake()
+        public  void Awake()
         {
         }
 
-        public static void localStart(GameObject gameObject)
+        public  void Start()
         {
             kgps_button_off = "KerbalGPS/Icon/GPSIconOff";
             kgps_button_on_sat = "KerbalGPS/Icon/GPSIconSat";
@@ -83,17 +86,17 @@ namespace KerbStar.GPSToolbar
             }
         }
 
-        private static void OnToggleTrue()
+        private  void OnToggleTrue()
         {
             displayGUI = true;
         }
 
-        private static void OnToggleFalse()
+        private  void OnToggleFalse()
         {
             displayGUI = false;
         }
 
-        public static void setBtnState(bool state, bool click = false)
+        public  void setBtnState(bool state, bool click = false)
         {
             if (state)
                 toolbarControl.SetTrue(click);
@@ -101,7 +104,7 @@ namespace KerbStar.GPSToolbar
                 toolbarControl.SetFalse(click);
         }
 
-        public static void SetAppLauncherButtonTexture(rcvrStatus status)
+        public  void SetAppLauncherButtonTexture(rcvrStatus status)
         {
             tex2d = null;
 
@@ -132,7 +135,7 @@ namespace KerbStar.GPSToolbar
             }
         }
 
-        public static void OnDestroy()
+        public  void OnDestroy()
         {
             if (toolbarControl != null)
             {

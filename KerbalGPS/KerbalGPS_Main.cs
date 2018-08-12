@@ -301,16 +301,16 @@ namespace KerbStar
                             {
                                 if (guNumSats >= 4)
                                 {
-                                    GPSToolbar.AppLauncherKerbalGPS.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.SATS);
+                                    GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.SATS);
                                 }
                                 else
                                 {
-                                    GPSToolbar.AppLauncherKerbalGPS.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.NOSATS);
+                                    GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.NOSATS);
                                 }
                             }
                             else
                             {
-                                GPSToolbar.AppLauncherKerbalGPS.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.OFF);
+                                GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.OFF);
                             }
                         }
                         else print("[KERBALGPS] no master");
@@ -400,7 +400,7 @@ namespace KerbStar
 
         private void OnGUI()
         {
-            if (amIMaster && GPSToolbar.AppLauncherKerbalGPS.displayGUI )
+            if (amIMaster && GPSToolbar.AppLauncherKerbalGPS.Instance.displayGUI)
             {
                 drawGUI();
             }
@@ -686,7 +686,7 @@ namespace KerbStar
         
         public void Start()
         {
-             GPSToolbar.AppLauncherKerbalGPS.localStart(this.gameObject);
+            // GPSToolbar.AppLauncherKerbalGPS.localStart(this.gameObject);
         }
         
         public void OnDestroy()
