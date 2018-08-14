@@ -39,7 +39,7 @@ namespace KerbStar
                 fDestLon = lon;
             }
         }
-        static public Dictionary<string, GPS_Coordinates> gdDestinations = new Dictionary<string, GPS_Coordinates>();
+        static public SortedDictionary<string, GPS_Coordinates> gdDestinations = new SortedDictionary<string, GPS_Coordinates>(StringComparer.CurrentCultureIgnoreCase);
 
 
         static string SafeLoad(string value, double oldvalue)

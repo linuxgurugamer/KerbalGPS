@@ -1,3 +1,6 @@
+1.1.0.4
+	Changed dictionary to a sorted dictionary, ignoring case for the sort
+
 1.1.0.3
 	Added saving and loading multiple destinations 
 	Added hiding of UI
