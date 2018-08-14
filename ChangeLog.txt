@@ -1,3 +1,9 @@
+1.1.0.3
+	Added saving and loading multiple destinations 
+	Added hiding of UI
+	Changed text entry for NSEW to toggle buttons
+	Added saving window positions
+
 1.1.0.2
 	Replaced foreach with for loops
 	Changed GUI.Dragwindow to do the whole window

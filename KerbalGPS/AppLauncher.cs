@@ -23,7 +23,7 @@ using KSP.UI.Screens;
 using UnityEngine;
 using ToolbarControl_NS;
 
-namespace KerbStar.GPSToolbar
+namespace KerbStar
 {
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     public class RegisterToolbar : MonoBehaviour
@@ -39,7 +39,7 @@ namespace KerbStar.GPSToolbar
         public static AppLauncherKerbalGPS Instance;
 
         //private static ApplicationLauncherButton btnLauncher;
-        static ToolbarControl toolbarControl;
+        static internal ToolbarControl toolbarControl;
         internal const string MODID = "KerbalGPS_NS";
         internal const string MODNAME = "KerbalGPS";
 

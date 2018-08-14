@@ -78,6 +78,7 @@ namespace KerbStar
         public List<Guid> GNSSSatelliteIDs = new List<Guid>();
         //public bool displayGUI;
 
+        static internal KerbalGPS Instance;
   
         /////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -86,21 +87,28 @@ namespace KerbStar
         /////////////////////////////////////////////////////////////////////////////////////////////
 
         private GPS_Calculations clsGPSMath = new GPS_Calculations();
-        private Rect varWindowPos;
+        internal Rect varWindowPos;
+        internal Rect varDestWindowPos;
 
         private Vector3 gfPosition;
         private DateTime gLastSVCheckTime;
         private float gfPositionErrorEstimate = 999.9f;
         private float gfDeltaTime = 0.0f;
         private float gfFilteredAltitude = 0.0f;
-        private float gfDestLat = -0.1033f;
-        private float gfDestLon = -74.575f;
-        private float gfOrigLat = -0.1033f;
-        private float gfOrigLon = -74.575f;
+
+        internal const float DEF_DESTLAT = -0.1033f;
+        internal const float DEF_DESTLON = -74.575f;
+
+        private float gfDestLat = DEF_DESTLAT;
+        private float gfDestLon = DEF_DESTLON;
+        private float gfOrigLat = DEF_DESTLAT;
+        private float gfOrigLon = DEF_DESTLON;
+
         private bool gyKerbalGPSInitialised = false;
         private bool gyReceiverOn = true;
         private uint gbDisplayMode = MODE_GPS_POSITION;
         private int giWindowID;
+        private int giDestWinID;
         private int giLastVesselCount = 0;
         private int giTransmitterID = FIGARO_TRANSMITTER_PART_NAME.GetHashCode();
         // private int gpsMaster;
@@ -116,7 +124,10 @@ namespace KerbStar
         private System.String gsLonDeg = "74";
         private System.String gsLonMin = "34.5";
         private System.String gsLonEW = "W";
-        private System.String gsModeString = "Position";        
+        private System.String gsModeString = "Position";
+
+        const string NONAME = "No Name";
+        private string gsDestName = NONAME;
 
         private NumberStyles varStyle = NumberStyles.Any;
         private CultureInfo varCulture = CultureInfo.CreateSpecificCulture("en-US");
@@ -135,8 +146,9 @@ namespace KerbStar
         private const string strSubVersion = "00";
 
         private const float MIN_CALCULATION_INTERVAL = 0.25f; // 4 Hz GPS
-        private const float GPS_GUI_WIDTH = 300.0f;
-        private const float GPS_GUI_HEIGHT = 152.0f;
+        internal const float GPS_GUI_WIDTH = 200.0f;
+        internal const float GPS_GUI_HEIGHT = 152.0f;
+        internal float GPS_DEST_GUI_HEIGHT = Screen.height / 3f;
 
         private const uint MODE_GPS_POSITION = 0;
         private const uint MODE_GPS_DESTINATION = 1;
@@ -170,7 +182,7 @@ namespace KerbStar
             gyKerbalGPSInitialised = false;
 
             giWindowID = DateTime.Now.Minute + DateTime.Now.Second + DateTime.Now.Millisecond;
-
+            giDestWinID = DateTime.Now.Minute + DateTime.Now.Second + DateTime.Now.Millisecond + 1;
             gLastSVCheckTime = DateTime.Now;
 
             base.OnLoad(node);
@@ -281,16 +293,16 @@ namespace KerbStar
                         {
                             if (guNumSats >= 4)
                             {
-                                GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.SATS);
+                                AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(AppLauncherKerbalGPS.rcvrStatus.SATS);
                             }
                             else
                             {
-                                GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.NOSATS);
+                                AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(AppLauncherKerbalGPS.rcvrStatus.NOSATS);
                             }
                         }
                         else
                         {
-                            GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.OFF);
+                            AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(AppLauncherKerbalGPS.rcvrStatus.OFF);
                         }
 
                     }
@@ -303,7 +315,7 @@ namespace KerbStar
             else
             {
                 if (vessel.isActiveVessel)
-                    GPSToolbar.AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.OFF);
+                    AppLauncherKerbalGPS.Instance.SetAppLauncherButtonTexture(AppLauncherKerbalGPS.rcvrStatus.OFF);
             }
 
             //base.OnUpdate();
@@ -373,47 +385,90 @@ namespace KerbStar
         Description:  Callback function to draw GUI
          
         *********************************************************************************************/
+        bool loadDestination = false;
+        GUIStyle varButtonStyle = null;
 
         private void OnGUI()
         {
-            if (amIMaster && GPSToolbar.AppLauncherKerbalGPS.Instance.displayGUI)
+            if (varButtonStyle == null)
             {
-                drawGUI();
+                varButtonStyle = new GUIStyle(GUI.skin.button);
+                //varButtonStyle.fixedWidth = GPS_GUI_WIDTH - 5.0f;
+                varButtonStyle.fixedHeight = 20.0f;
+                //varButtonStyle.contentOffset = new Vector2(0, 2);
+                varButtonStyle.normal.textColor = varButtonStyle.focused.textColor = Color.white;
+                varButtonStyle.hover.textColor = varButtonStyle.active.textColor = Color.yellow;
+            }
+            if (!hideUI && amIMaster && AppLauncherKerbalGPS.Instance.displayGUI)
+            {
+                try
+                {
+                    if ((this.part.State != PartStates.DEAD) && (this.vessel.isActiveVessel))
+                    {
+                        if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useKSPskin)
+                            GUI.skin = HighLogic.Skin;
+                        varWindowPos = ClickThruBlocker.GUILayoutWindow(giWindowID, varWindowPos, WindowGUI, "KerbalGPS - " + gsModeString, GUILayout.MinWidth(GPS_GUI_WIDTH), GUILayout.MinHeight(GPS_GUI_HEIGHT));
+                    }
+                    else
+                    {
+                        //RenderingManager.RemoveFromPostDrawQueue(3, new Callback(drawGUI)); //close the GUI if part has been deleted
+                        //displayGUI = false;
+                        //GPSToolbar.AppLauncherKerbalGPS.setBtnState(false);
+                    }
+                }
+                catch
+                {
+                    //RenderingManager.RemoveFromPostDrawQueue(3, new Callback(drawGUI)); //close the GUI if part has been deleted
+                    //displayGUI = false;
+                    //GPSToolbar.AppLauncherKerbalGPS.setBtnState(false);
+                }
+
+                if (loadDestination)
+                {
+                    //if (activeGPSmodule.part.State != PartStates.DEAD)
+                    {
+                        varDestWindowPos = ClickThruBlocker.GUILayoutWindow(giDestWinID, varDestWindowPos, DestWindowGUI, "KerbalGPS - " + "Destinations", GUILayout.MinWidth(GPS_GUI_WIDTH), GUILayout.Height(GPS_DEST_GUI_HEIGHT));
+                    }
+                }
             }
         }
+
+        Vector2 displayScrollVector;        FileIO.GPS_Coordinates selectedCoordinate = null;        bool b;
+        private void DestWindowGUI(int windowID)        {            GUILayout.BeginVertical();            displayScrollVector = GUILayout.BeginScrollView(displayScrollVector);            foreach (var entry in FileIO.gdDestinations)            {                GUILayout.BeginHorizontal();                b = (selectedCoordinate != null && selectedCoordinate.sDestName == entry.Key);
+                if (GUILayout.Toggle(b, entry.Key))                {                    selectedCoordinate = entry.Value;                }                GUILayout.EndHorizontal();            }            GUILayout.EndScrollView();
+            if (selectedCoordinate != null)            {                gsDestName = selectedCoordinate.sDestName;                gfDestLat = selectedCoordinate.fDestLat;                gfDestLon = selectedCoordinate.fDestLon;                gsLatDeg = Math.Floor(Math.Abs(gfDestLat)).ToString();
+                gsLatMin = ((Math.Abs(gfDestLat) - Math.Floor(Math.Abs(gfDestLat))) * 60.0f).ToString("#0.0");
+                gsLonDeg = Math.Floor(Math.Abs(gfDestLon)).ToString();
+                gsLonMin = ((Math.Abs(gfDestLon) - Math.Floor(Math.Abs(gfDestLon))) * 60.0f).ToString("#0.0");                //                loadDestination = false;            }            if (GUILayout.Button("Delete"))            {                FileIO.gdDestinations.Remove(selectedCoordinate.sDestName);                FileIO.SaveData(this);            }            if (GUILayout.Button("Close"))
+            {
+                loadDestination = false;                AppLauncherKerbalGPS.toolbarControl.SetFalse(true);                FileIO.SaveData(this);
+            }            GUILayout.EndVertical();            GUI.DragWindow();        }
 
         private void WindowGUI(int windowID)
         {
 
-            GUIStyle varButtonStyle = new GUIStyle(GUI.skin.button);
-            varButtonStyle.fixedWidth = GPS_GUI_WIDTH - 5.0f;
-            varButtonStyle.fixedHeight = 20.0f;
-            varButtonStyle.contentOffset = new Vector2(0, 2);
-            varButtonStyle.normal.textColor = varButtonStyle.focused.textColor = Color.white;
-            varButtonStyle.hover.textColor = varButtonStyle.active.textColor = Color.yellow;
 
             GUILayout.BeginVertical(GUILayout.MaxHeight(GPS_GUI_HEIGHT));
 
             if (gyReceiverOn)
             {
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button("Show Destination"))
+                if (GUILayout.Button("Destination", varButtonStyle))
                 {
                     gbDisplayMode = MODE_GPS_DESTINATION;
                     gsModeString = "Destination";
                 }
-                if (GUILayout.Button("Show Status"))
+                if (GUILayout.Button("Status", varButtonStyle))
                 {
                     gbDisplayMode = MODE_GPS_STATUS;
                     gsModeString = "Status";
                 }
-                if (GUILayout.Button("Show Position"))
+                if (GUILayout.Button("Position", varButtonStyle))
                 {
                     gbDisplayMode = MODE_GPS_POSITION;
                     gsModeString = "Position";
                 }
                 GUILayout.EndHorizontal();
-
     
                 if (gbDisplayMode == MODE_GPS_POSITION)
                 {
@@ -425,7 +480,7 @@ namespace KerbStar
                 }
                 else if (gbDisplayMode == MODE_GPS_DESTINATION)
                 {
-                    drawDestiationGUI(varButtonStyle);
+                    drawDestinationGUI();
                 }
                 else
                 {
@@ -455,7 +510,7 @@ namespace KerbStar
          
         *********************************************************************************************/
 
-        private void drawDestiationGUI(GUIStyle varButtonStyle)
+        private void drawDestinationGUI()
         {
             GUIStyle varTextStyle = new GUIStyle(GUI.skin.textField);
             GUIStyle varHemisphereStyle = new GUIStyle(GUI.skin.textField);
@@ -487,7 +542,9 @@ namespace KerbStar
             GUILayout.Label("°", varLabelStyle);
             gsLatMin = GUILayout.TextArea(gsLatMin, 4, varTextStyle);
             //GUILayout.Label("'", varLabelStyle);
-            gsLatNS = GUILayout.TextArea(gsLatNS, 1, varHemisphereStyle);
+            //gsLatNS = GUILayout.TextArea(gsLatNS, 1, varHemisphereStyle);
+            if (GUILayout.Button(gsLatNS, varButtonStyle, GUILayout.Width(24)))            {                if (gsLatNS == "N")                    gsLatNS = "S";                else                    gsLatNS = "N";            }
+
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
 
@@ -498,7 +555,9 @@ namespace KerbStar
             GUILayout.Label("°", varLabelStyle);
             gsLonMin = GUILayout.TextArea(gsLonMin, 4, varTextStyle);
             //GUILayout.Label("'", varLabelStyle);
-            gsLonEW = GUILayout.TextArea(gsLonEW, 1, varHemisphereStyle);
+            //gsLonEW = GUILayout.TextArea(gsLonEW, 1, varHemisphereStyle);
+            if (GUILayout.Button(gsLonEW, varButtonStyle, GUILayout.Width(24)))            {                if (gsLonEW == "W")                    gsLonEW = "E";                else                    gsLonEW = "W";            }
+
             GUILayout.EndHorizontal();
             GUILayout.EndVertical();
 
@@ -529,7 +588,7 @@ namespace KerbStar
                 }
             }
 
-            if (GUILayout.Button("Here", varButtonStyle))
+            if (GUILayout.Button("Set Destination Here", varButtonStyle))
             {
                 gsLatDeg = Math.Floor(Math.Abs(gfOrigLat)).ToString();
                 gsLatMin = ((Math.Abs(gfOrigLat) - Math.Floor(Math.Abs(gfOrigLat))) * 60.0f).ToString("#0.0");
@@ -539,8 +598,19 @@ namespace KerbStar
 
                 gsLonDeg = Math.Floor(Math.Abs(gfOrigLon)).ToString();
                 gsLonMin = ((Math.Abs(gfOrigLon) - Math.Floor(Math.Abs(gfOrigLon))) * 60.0f).ToString("#0.0");
+                gsDestName = NONAME;
             }
-
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Dest. name:");
+            gsDestName = GUILayout.TextField(gsDestName, GUILayout.Width(GPS_GUI_WIDTH / 2));
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            if (gsDestName == NONAME)
+                GUI.enabled = false;
+            if (GUILayout.Button("Save", varButtonStyle))            {                FileIO.GPS_Coordinates coordinates = new FileIO.GPS_Coordinates(gsDestName, gfDestLat, gfDestLon);                if (FileIO.gdDestinations.ContainsKey(gsDestName))                {                    FileIO.gdDestinations[gsDestName].fDestLat = gfDestLat;                    FileIO.gdDestinations[gsDestName].fDestLon = gfDestLon;                }                else                    FileIO.gdDestinations.Add(gsDestName, coordinates);                Log.Info("Save, x: " + KerbalGPS.Instance.varWindowPos.x + ",   y: " + KerbalGPS.Instance.varWindowPos.y);                Log.Info("Save, x: " + varWindowPos.x + ",   y: " + varWindowPos.y);                FileIO.SaveData(this);            }
+            GUI.enabled = true;
+            if (GUILayout.Button("Load", varButtonStyle))            {                loadDestination = true;            }
+            GUILayout.EndHorizontal();
         }
 
 
@@ -555,27 +625,7 @@ namespace KerbStar
 
         private void drawGUI()
         {
-            try
-            {
-                if ((this.part.State != PartStates.DEAD) && (this.vessel.isActiveVessel))
-                {
-                    if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useKSPskin)
-                        GUI.skin = HighLogic.Skin;
-                    varWindowPos = ClickThruBlocker.GUILayoutWindow(giWindowID, varWindowPos, WindowGUI, "Figaro - " + gsModeString, GUILayout.MinWidth(GPS_GUI_WIDTH), GUILayout.MaxHeight(GPS_GUI_HEIGHT));
-                }
-                else
-                {
-                    //RenderingManager.RemoveFromPostDrawQueue(3, new Callback(drawGUI)); //close the GUI if part has been deleted
-                    //displayGUI = false;
-                    //GPSToolbar.AppLauncherKerbalGPS.setBtnState(false);
-                }
-            }
-            catch
-            {
-                //RenderingManager.RemoveFromPostDrawQueue(3, new Callback(drawGUI)); //close the GUI if part has been deleted
-                //displayGUI = false;
-                //GPSToolbar.AppLauncherKerbalGPS.setBtnState(false);
-            }
+           
 
         }
 
@@ -666,6 +716,7 @@ namespace KerbStar
 
             if (!HighLogic.LoadedSceneIsFlight)
                 return;
+            Instance = this;
             clsGPSMath.Reset();
 
             Events["DeactivateReceiver"].active = true;
@@ -677,11 +728,29 @@ namespace KerbStar
 
             gbDisplayMode = MODE_GPS_POSITION;
             gLastSVCheckTime = DateTime.Now;
+
+            FileIO.LoadData(this);
             // GPSToolbar.AppLauncherKerbalGPS.localStart(this.gameObject);
+            GameEvents.onHideUI.Add(this.HideUI);
+            GameEvents.onShowUI.Add(this.ShowUI);
         }
-        
+        /// <summary>
+        /// Hides all user interface elements.
+        /// </summary>
+        bool hideUI = false;
+        public void HideUI()
+        {
+            hideUI = true;
+        }
+        void ShowUI()
+        {
+            hideUI = false;
+        }
+
         public void OnDestroy()
         {
+            GameEvents.onHideUI.Remove(this.HideUI);
+            GameEvents.onShowUI.Remove(this.ShowUI);
             Log.Info("OnDestroy");
             CleanUp();
         }
@@ -717,23 +786,14 @@ namespace KerbStar
 
         private float ParseNS()
         {
-            float fReturn;
-
-            if (gsLatNS == "N" || gsLatNS == "n")
+            if (gsLatNS == "N" )
             {
-                fReturn = 1.0f;
+                return 1.0f;
             }
-            else if (gsLatNS == "S" || gsLatNS == "s")
+            else 
             {
-                fReturn = -1.0f;
+                return -1.0f;
             }
-            else
-            {
-                fReturn = 0.0f;
-                gsLatNS = "N";
-            }
-
-            return fReturn;
         }
 
 
@@ -748,23 +808,15 @@ namespace KerbStar
 
         private float ParseEW()
         {
-            float fReturn = 0.0f;
-
-            if (gsLonEW == "E" || gsLonEW == "e")
+            if (gsLonEW == "E")
             {
-                fReturn = 1.0f;
+                return 1.0f;
             }
-            else if (gsLonEW == "W" || gsLonEW == "w")
+            else 
             {
-                fReturn = -1.0f;
-            }
-            else
-            {
-                fReturn = 0.0f;
-                gsLonEW = "E";
+                return -1.0f;
             }
 
-            return fReturn;
         }
 
         // attempt to eliminate cross code conflicts

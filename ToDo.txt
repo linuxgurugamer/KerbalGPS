@@ -1,0 +1,8 @@
+
+
+Add ability to interface with Final Frontier for more ribbons
+
+
+Select coordinates by label
+
+Add support for seconds (degrees, minutes, seconds)
