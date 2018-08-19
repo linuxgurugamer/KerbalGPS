@@ -1,3 +1,13 @@
+
+1.1.0.5
+	Added EC usage to transmitter.  Only works when satellite is active, or if a background processing mod is installed
+	Merged lists together into a list of a class instead of individual lists
+	Added option to use Degrees/Minutes/Seconds instead of  display/entry of Degrees/Minutes for locations
+	Redid the Degrees/Minutes/Seconds for the current location into a common function used by both the Latitude and Longitude formatters
+	Added hiding of window on game pause, with setting to control whether it hides on pause or not
+	Added Contracts for ContractConfigurator
+	Moved the icon directory into the PluginData folder
+
 1.1.0.4
 	Changed dictionary to a sorted dictionary, ignoring case for the sort
 

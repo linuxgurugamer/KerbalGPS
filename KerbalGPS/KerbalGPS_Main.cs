@@ -40,7 +40,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
-
+using System.Linq;
 using ClickThroughFix;
 
 namespace KerbStar
@@ -74,8 +74,23 @@ namespace KerbStar
         [KSPField(isPersistant = false, guiActive = true, guiName = "Accuracy")]
         public string gsAccuracy;
 
-        public List<string> GNSSSatelliteNames = new List<string>();
-        public List<Guid> GNSSSatelliteIDs = new List<Guid>();
+        public class GNSSSatelliteInfo
+        {
+            public string name;
+            public Guid guid;
+            public double gpsRange;
+
+            public GNSSSatelliteInfo(string n, Guid g, double r)
+            {
+                name = n;
+                guid = g;
+                gpsRange = r;
+            }
+        }
+        public List<GNSSSatelliteInfo>GNSSSatteliteInfoList = new List<GNSSSatelliteInfo>();
+        //public List<string> GNSSSatelliteNames = new List<string>();
+        //public List<Guid> GNSSSatelliteIDs = new List<Guid>();
+
         //public bool displayGUI;
 
         static internal KerbalGPS Instance;
@@ -120,9 +135,11 @@ namespace KerbStar
         private System.String gsHeading;
         private System.String gsLatDeg = "0";
         private System.String gsLatMin = "06.2";
+        private System.String gsLatSec = "0";
         private System.String gsLatNS = "S";
         private System.String gsLonDeg = "74";
         private System.String gsLonMin = "34.5";
+        private System.String gsLonSec = "0";
         private System.String gsLonEW = "W";
         private System.String gsModeString = "Position";
 
@@ -342,8 +359,9 @@ namespace KerbStar
             {
                 if (FlightGlobals.Vessels.Count != giLastVesselCount)
                 {
-                    GNSSSatelliteIDs.Clear();
-                    GNSSSatelliteNames.Clear();
+                    GNSSSatteliteInfoList.Clear();
+                    //GNSSSatelliteIDs.Clear();
+                    //GNSSSatelliteNames.Clear();
                     giLastVesselCount = FlightGlobals.Vessels.Count;
 
                     for (int i = FlightGlobals.Vessels.Count - 1; i >= 0; i--)
@@ -359,9 +377,26 @@ namespace KerbStar
                                 ProtoPartSnapshot varPart = varVessel.protoVessel.protoPartSnapshots[x];
                                 if (varPart.partName.GetHashCode() == giTransmitterID)
                                 {
-                                    GNSSSatelliteNames.Add(varVessel.name);
-                                    GNSSSatelliteIDs.Add(varVessel.id);
-                                    break;
+                                    double gpsRange = 0;
+                                    for (int im = varPart.modules.Count - 1; im >= 0; im--)
+                                    //foreach (ProtoPartModuleSnapshot m in varPart.modules)
+                                    {
+                                        ProtoPartModuleSnapshot m = varPart.modules[im];
+                                        if (m.moduleName == "ModuleGPSTransmitter")
+                                        {
+                                            string r = "500000";
+                                            m.moduleValues.TryGetValue("gpsRange", ref r);
+                                            gpsRange = Double.Parse(FileIO.SafeLoad(r, 500000f));                                            
+                                        }
+                                    }
+                                    if (CheckForEC(varVessel))
+                                    {
+                                       
+                                        GNSSSatteliteInfoList.Add(new GNSSSatelliteInfo(varVessel.name, varVessel.id, gpsRange));
+                                        //GNSSSatelliteNames.Add(varVessel.name);
+                                        //GNSSSatelliteIDs.Add(varVessel.id);
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -370,6 +405,54 @@ namespace KerbStar
             }
         }
 
+        internal static double doubleValue(ConfigNode node, string key)
+        {
+            double v = 0d;
+            Double.TryParse(node.GetValue(key), out v);
+            return v;
+        }
+
+        bool CheckForEC(Vessel vessel)
+        {
+            // Need to add a check for range here
+
+            double ec = 0;
+            if (vessel.loaded)
+            {
+                for (int i = vessel.parts.Count - 1; i >= 0; i--)
+                {
+                    Part p = vessel.parts[i];
+                    for (int i1 = p.Resources.Count - 1; i1 >= 0; i1--)
+                    {
+                        PartResource r = p.Resources[i1];
+                        if (r.resourceName == "ElectricCharge")
+                        {
+                            ec += r.amount;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                ProtoVessel proto = vessel.protoVessel;
+                
+                var res = new SortedDictionary<string, ResourceData>();
+                for (int i = proto.protoPartSnapshots.Count - 1; i >= 0; i--)                
+                {
+                    ProtoPartSnapshot p = proto.protoPartSnapshots[i];
+
+                    for (int i1 = p.resources.Count - 1; i1 >= 0; i1--)
+                    {
+                        ProtoPartResourceSnapshot r = p.resources[i1];
+                        if (r.resourceName == "ElectricCharge")
+                        {
+                            ec += r.amount;
+                        }
+                    }
+                }
+            }
+            return (ec > 0.001);
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -434,12 +517,34 @@ namespace KerbStar
         }
 
         Vector2 displayScrollVector;        FileIO.GPS_Coordinates selectedCoordinate = null;        bool b;
-        private void DestWindowGUI(int windowID)        {            GUILayout.BeginVertical();            displayScrollVector = GUILayout.BeginScrollView(displayScrollVector);            foreach (var entry in FileIO.gdDestinations)            {                GUILayout.BeginHorizontal();                b = (selectedCoordinate != null && selectedCoordinate.sDestName == entry.Key);
+        private void DestWindowGUI(int windowID)        {            GUILayout.BeginVertical();            displayScrollVector = GUILayout.BeginScrollView(displayScrollVector);            foreach (var entry in FileIO.gdDestinations)            {                GUILayout.BeginHorizontal();                b = (selectedCoordinate != null && selectedCoordinate.sDestName == entry.Key);
                 if (GUILayout.Toggle(b, entry.Key))                {                    selectedCoordinate = entry.Value;                }                GUILayout.EndHorizontal();            }            GUILayout.EndScrollView();
             if (selectedCoordinate != null)            {                gsDestName = selectedCoordinate.sDestName;                gfDestLat = selectedCoordinate.fDestLat;                gfDestLon = selectedCoordinate.fDestLon;                gsLatDeg = Math.Floor(Math.Abs(gfDestLat)).ToString();
-                gsLatMin = ((Math.Abs(gfDestLat) - Math.Floor(Math.Abs(gfDestLat))) * 60.0f).ToString("#0.0");
+                double min =  (Math.Abs(gfDestLat) - Math.Floor(Math.Abs(gfDestLat))) * 60.0f;
+                if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
+                {
+                    gsLatMin = ((Math.Abs(gfDestLat) - Math.Floor(Math.Abs(gfDestLat))) * 60.0f).ToString("#0.0");
+                }
+                else
+                {
+                    gsLatMin = Math.Floor(min).ToString();
+                    double sec = min - Math.Floor(min);
+                    gsLatSec = sec.ToString("#0.0");
+                }
                 gsLonDeg = Math.Floor(Math.Abs(gfDestLon)).ToString();
-                gsLonMin = ((Math.Abs(gfDestLon) - Math.Floor(Math.Abs(gfDestLon))) * 60.0f).ToString("#0.0");                //                loadDestination = false;            }            if (GUILayout.Button("Delete"))            {                FileIO.gdDestinations.Remove(selectedCoordinate.sDestName);                FileIO.SaveData(this);            }            if (GUILayout.Button("Close"))
+                min = (Math.Abs(gfDestLon) - Math.Floor(Math.Abs(gfDestLon))) * 60.0f;
+                if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
+                {
+                    gsLonMin = ((Math.Abs(gfDestLon) - Math.Floor(Math.Abs(gfDestLon))) * 60.0f).ToString("#0.0");
+                }
+                else
+                {
+                    gsLonMin = Math.Floor(min).ToString();
+                    double sec = min - Math.Floor(min);
+                    gsLonSec = sec.ToString("#0.0");
+                }
+                //                loadDestination = false;
+            }            if (GUILayout.Button("Delete"))            {                FileIO.gdDestinations.Remove(selectedCoordinate.sDestName);                FileIO.SaveData(this);            }            if (GUILayout.Button("Close"))
             {
                 loadDestination = false;                AppLauncherKerbalGPS.toolbarControl.SetFalse(true);                FileIO.SaveData(this);
             }            GUILayout.EndVertical();            GUI.DragWindow();        }
@@ -537,11 +642,19 @@ namespace KerbStar
 
             GUILayout.BeginVertical(GUILayout.MaxHeight(20.0f));
             GUILayout.BeginHorizontal(GUILayout.MinWidth(GPS_GUI_WIDTH - 5.0f));
-            GUILayout.Label("Lat: ", varLabelStyle);
+            GUILayout.Label("Lat:", varLabelStyle);
+            GUILayout.FlexibleSpace();
             gsLatDeg = GUILayout.TextArea(gsLatDeg, 3, varTextStyle);
             GUILayout.Label("°", varLabelStyle);
             gsLatMin = GUILayout.TextArea(gsLatMin, 4, varTextStyle);
-            //GUILayout.Label("'", varLabelStyle);
+            GUILayout.Label("'", varLabelStyle);
+            if (!HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
+            {
+                gsLatSec = GUILayout.TextArea(gsLatSec, 4, varTextStyle);
+                GUILayout.Label("\"", varLabelStyle);
+            }
+
+
             //gsLatNS = GUILayout.TextArea(gsLatNS, 1, varHemisphereStyle);
             if (GUILayout.Button(gsLatNS, varButtonStyle, GUILayout.Width(24)))            {                if (gsLatNS == "N")                    gsLatNS = "S";                else                    gsLatNS = "N";            }
 
@@ -550,11 +663,18 @@ namespace KerbStar
 
             GUILayout.BeginVertical(GUILayout.MaxHeight(20.0f));
             GUILayout.BeginHorizontal(GUILayout.MinWidth(GPS_GUI_WIDTH - 5.0f));
-            GUILayout.Label("Lon: ", varLabelStyle);
+            GUILayout.Label("Lon:", varLabelStyle);
+            GUILayout.FlexibleSpace();
             gsLonDeg = GUILayout.TextArea(gsLonDeg, 3, varTextStyle);
             GUILayout.Label("°", varLabelStyle);
             gsLonMin = GUILayout.TextArea(gsLonMin, 4, varTextStyle);
-            //GUILayout.Label("'", varLabelStyle);
+            GUILayout.Label("'", varLabelStyle);
+            if (!HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
+            {
+                gsLonSec = GUILayout.TextArea(gsLonSec, 4, varTextStyle);
+                GUILayout.Label("\"", varLabelStyle);
+            }
+
             //gsLonEW = GUILayout.TextArea(gsLonEW, 1, varHemisphereStyle);
             if (GUILayout.Button(gsLonEW, varButtonStyle, GUILayout.Width(24)))            {                if (gsLonEW == "W")                    gsLonEW = "E";                else                    gsLonEW = "W";            }
 
@@ -563,8 +683,8 @@ namespace KerbStar
 
             if ((gsLatDeg.Length != 0) && (gsLatMin.Length > 2) && (gsLatNS.Length != 0) && (gsLonDeg.Length != 0) && (gsLonMin.Length > 2) && (gsLonEW.Length != 0))
             {
-                gfDestLat = ParseNS() * (ParseNumericString(gsLatDeg) + ParseNumericString(gsLatMin) / 60.0f);
-                gfDestLon = ParseEW() * (ParseNumericString(gsLonDeg) + ParseNumericString(gsLonMin) / 60.0f);
+                gfDestLat = ParseNS() * (ParseNumericString(gsLatDeg) + ParseNumericString(gsLatMin) / 60.0f + ParseNumericString(gsLatSec)/3600.0f);
+                gfDestLon = ParseEW() * (ParseNumericString(gsLonDeg) + ParseNumericString(gsLonMin) / 60.0f + ParseNumericString(gsLonSec) / 3600.0f);
 
                 if (gfDestLat > 90) gfDestLat = 90.0f;
                 if (gfDestLat < -90) gfDestLat = -90.0f;
@@ -572,32 +692,86 @@ namespace KerbStar
                 if (gfDestLon < -180) gfDestLon = -180.0f;
 
                 gsLatDeg = Math.Floor(Math.Abs(gfDestLat)).ToString();
-                gsLatMin = ((Math.Abs(gfDestLat) - Math.Floor(Math.Abs(gfDestLat))) * 60.0f).ToString("#0.0");
+                double min = (Math.Abs(gfDestLat) - Math.Floor(Math.Abs(gfDestLat))) * 60.0f;
+                if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
+                {
+                    gsLatMin = min.ToString("#0.0");
+                }
+                else
+                {
+                   
+                    gsLatMin = Math.Floor(min).ToString();
+                    double sec = min - Math.Floor(min);
+                    gsLatSec = sec.ToString("#0.0");
+                }
 
                 gsLonDeg = Math.Floor(Math.Abs(gfDestLon)).ToString();
-                gsLonMin = ((Math.Abs(gfDestLon) - Math.Floor(Math.Abs(gfDestLon))) * 60.0f).ToString("#0.0");
+                min = (Math.Abs(gfDestLon) - Math.Floor(Math.Abs(gfDestLon))) * 60.0f;
+                if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
+                {
+                    gsLonMin = min.ToString("#0.0");
+                }
+                else
+                {
+                    
+                    gsLonMin = Math.Floor(min).ToString();
+                    double sec = min - Math.Floor(min);
+                    gsLonSec = sec.ToString("#0.0");
+                }
             }
             else
             {
                 if ((gsLatDeg.Length == 0) || (gsLatNS.Length == 0) || (gsLonDeg.Length == 0) || (gsLonEW.Length == 0))
                 {
-                    if (gsLatMin.StartsWith(".")) gsLatMin = "0" + gsLatMin;
-                    if (gsLonMin.StartsWith(".")) gsLonMin = "0" + gsLonMin;
-                    if (gsLatMin.Length <= 2) gsLatMin = gsLatMin + ".0";
-                    if (gsLonMin.Length <= 2) gsLonMin = gsLonMin + ".0";
+                    if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
+                    {
+                        if (gsLatMin.StartsWith(".")) gsLatMin = "0" + gsLatMin;
+                        if (gsLonMin.StartsWith(".")) gsLonMin = "0" + gsLonMin;
+                        if (gsLatMin.Length <= 2) gsLatMin = gsLatMin + ".0";
+                        if (gsLonMin.Length <= 2) gsLonMin = gsLonMin + ".0";
+                    } else
+                    {
+                        if (gsLatSec.StartsWith(".")) gsLatSec = "0" + gsLatSec;
+                        if (gsLonSec.StartsWith(".")) gsLonSec = "0" + gsLonSec;
+                        if (gsLatSec.Length <= 2) gsLatSec = gsLatSec + ".0";
+                        if (gsLonSec.Length <= 2) gsLonSec = gsLonSec + ".0";
+                    }
+
+
+
                 }
             }
 
             if (GUILayout.Button("Set Destination Here", varButtonStyle))
             {
                 gsLatDeg = Math.Floor(Math.Abs(gfOrigLat)).ToString();
-                gsLatMin = ((Math.Abs(gfOrigLat) - Math.Floor(Math.Abs(gfOrigLat))) * 60.0f).ToString("#0.0");
-
+                double min = (Math.Abs(gfOrigLat) - Math.Floor(Math.Abs(gfOrigLat))) * 60.0f;
+               
+                if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
+                {
+                     gsLatMin =min.ToString("#0.0");
+                }
+                else
+                {
+                    gsLatMin = Math.Floor(min).ToString();
+                    double sec = min - Math.Floor(min);
+                    gsLatSec = sec.ToString("#0.0");
+                }
                 if (gfOrigLon > 180.0f) gfOrigLon -= 360.0f;
                 if (gfOrigLon < -180.0f) gfOrigLon += 360.0f;
 
                 gsLonDeg = Math.Floor(Math.Abs(gfOrigLon)).ToString();
-                gsLonMin = ((Math.Abs(gfOrigLon) - Math.Floor(Math.Abs(gfOrigLon))) * 60.0f).ToString("#0.0");
+                min = (Math.Abs(gfOrigLon) - Math.Floor(Math.Abs(gfOrigLon))) * 60.0f;
+                if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
+                {
+                    gsLonMin = min.ToString("#0.0");
+                }
+                else
+                {
+                    gsLonMin = Math.Floor(min).ToString();
+                    double sec = min - Math.Floor(min);
+                    gsLonSec = sec.ToString("#0.0");
+                }
                 gsDestName = NONAME;
             }
             GUILayout.BeginHorizontal();
@@ -733,6 +907,8 @@ namespace KerbStar
             // GPSToolbar.AppLauncherKerbalGPS.localStart(this.gameObject);
             GameEvents.onHideUI.Add(this.HideUI);
             GameEvents.onShowUI.Add(this.ShowUI);
+            GameEvents.onGamePause.Add(this.HideUIWhenPaused);
+            GameEvents.onGameUnpause.Add(this.ShowUI);
         }
         /// <summary>
         /// Hides all user interface elements.
@@ -741,6 +917,11 @@ namespace KerbStar
         public void HideUI()
         {
             hideUI = true;
+        }
+        public void HideUIWhenPaused()
+        {
+            if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().hideWhenPaused)
+                hideUI = true;
         }
         void ShowUI()
         {
@@ -751,6 +932,8 @@ namespace KerbStar
         {
             GameEvents.onHideUI.Remove(this.HideUI);
             GameEvents.onShowUI.Remove(this.ShowUI);
+            GameEvents.onGamePause.Remove(this.HideUIWhenPaused);
+            GameEvents.onGameUnpause.Remove(this.ShowUI);
             Log.Info("OnDestroy");
             CleanUp();
         }

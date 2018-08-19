@@ -42,7 +42,7 @@ namespace KerbStar
         static public SortedDictionary<string, GPS_Coordinates> gdDestinations = new SortedDictionary<string, GPS_Coordinates>(StringComparer.CurrentCultureIgnoreCase);
 
 
-        static string SafeLoad(string value, double oldvalue)
+        internal static string SafeLoad(string value, double oldvalue)
         {
             if (value == null)
                 return oldvalue.ToString();

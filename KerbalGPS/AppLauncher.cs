@@ -66,10 +66,10 @@ namespace KerbStar
 
         public  void Start()
         {
-            kgps_button_off = "KerbalGPS/Icon/GPSIconOff";
-            kgps_button_on_sat = "KerbalGPS/Icon/GPSIconSat";
-            kgps_button_on_nosat = "KerbalGPS/Icon/GPSIconNoSat";
-            kgps_button_nogps = "KerbalGPS/Icon/GPSIconNoGPS";
+            kgps_button_off = "KerbalGPS/PluginData/Icon/GPSIconOff";
+            kgps_button_on_sat = "KerbalGPS/PluginData/Icon/GPSIconSat";
+            kgps_button_on_nosat = "KerbalGPS/PluginData/Icon/GPSIconNoSat";
+            kgps_button_nogps = "KerbalGPS/PluginData/Icon/GPSIconNoGPS";
             tex2d = kgps_button_nogps;
 
             if (toolbarControl == null)
@@ -107,8 +107,6 @@ namespace KerbStar
 
         public  void SetAppLauncherButtonTexture(rcvrStatus status)
         {
-            Log.Info("SetAppLauncherButtonTexture, status: " + status);
-            
             switch (status)
             {
                 case rcvrStatus.OFF:

@@ -2,14 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
+using KSP.Localization;
 
-#if false
 namespace KerbStar
 {
-    class ModuleGPSTransmitter: PartModule
+    class ModuleGPSTransmitter: PartModule, IModuleInfo
     {
-        [KSPField]
-        public float ecUsageRate = 0.1f;
+        const string MODULETITLE = "GPS Transmitter";
+        int ElectricityId;
+
+        [KSPField(isPersistant = true)]
+        public double gpsRange = 500000f; // in meters
+
 
         [KSPField(isPersistant = true)]
         public bool gpsActive = false;
@@ -21,7 +26,6 @@ namespace KerbStar
             {
                 gpsActive = !gpsActive;
                 UpdateLabels();
-                UpdateBackgroundProcessing();
             }
         }
 
@@ -37,31 +41,49 @@ namespace KerbStar
             }
 
         }
-
-        void UpdateBackgroundProcessing()
+        void Start()
         {
-            for (int i = part.Modules.Count - 1; i >= 0; i--)
-            if (part.Modules[i].moduleName == "ModuleBackgroundProcessing")
-            {
-                part.Modules[i].enabled = gpsActive;
-            }
+             ElectricityId = PartResourceLibrary.Instance.GetDefinition("ElectricCharge").id;
         }
 
         public void FixedUpdate()
         {
             if (gpsActive)
             {
-                var ec = part.RequestResource("ElectricCharge", ecUsageRate);
-                if (ec < ecUsageRate)
+                double amount, maxAmount;
+                part.GetConnectedResourceTotals(ElectricityId, out amount, out maxAmount);
+
+                if (amount < 0.001)
                 {
-                    gpsActive = false;
-                    UpdateLabels();
+                    gpsActive = false;                    
                 }
+                UpdateLabels();
             }
         }
+        
+        // IModuleInfo follows
+        public string GetModuleTitle()
+        {
+            return MODULETITLE;
+        }
+        public override string GetModuleDisplayName()
+        {
+            return Localizer.Format(MODULETITLE);
+        }
 
+        public Callback<Rect> GetDrawModulePanelCallback()
+        {
+            return null;
+        }
 
+        public string GetPrimaryField()
+        {
+            return "";
+        }
+        public override string GetInfo()
+        {
+            return "GPS Range: " + gpsRange + "m"; 
+        }
 
     }
 }
-#endif

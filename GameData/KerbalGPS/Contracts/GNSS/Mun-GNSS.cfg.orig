@@ -3,19 +3,19 @@
 
 CONTRACT_TYPE
 {
-    name = GNSS_Minmus
+    name = GNSS_Mun
     group = GNSS
 
-    title = Create a Global Navigation Satellite System for Minmus.
+    title = Create a Global Navigation Satellite System for the Mun.
     description = Now that we have the navigation satellites up and running on Kerbin, it's time to expand our reach.
-    synopsis = Launch a network of 18 GNSS satellites to cover Minmus.
+    synopsis = Launch a network of 18 GNSS satellites to cover the Mun.
     completedMessage = The network is up and transmitting, good work!
 
     // Level 2 prestige
     prestige = Significant
 
-    // This is definitely a Kerbin contract
-    targetBody = Minmus
+    // This is definitely a Mun contract
+    targetBody = Mun
 
     // Always offered by the R&D department
     agent = Research & Development Department
@@ -33,16 +33,16 @@ CONTRACT_TYPE
         name = AGroup
         type = Sequence
 
-        title = Launch satellties into the first orbital plane
+        title = Launch satellites into the first orbital plane
 
         rewardFunds = 25000.0
 
         PARAMETER
         {
-            name = GNSS Minmus A1
+            name = GNSS Mun A1
             type = VesselParameterGroup
 
-            define = GNSS Minmus A1
+            define = GNSS Mun A1
 
             PARAMETER
             {
@@ -65,17 +65,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus A2
+            name = GNSS Mun A2
             type = VesselParameterGroup
 
-            define = GNSS Minmus A2
+            define = GNSS Mun A2
 
             PARAMETER
             {
                 name = NotA1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus A1
+                vessel = GNSS Mun A1
             }
 
             PARAMETER
@@ -99,17 +99,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus A3
+            name = GNSS Mun A3
             type = VesselParameterGroup
 
-            define = GNSS Minmus A3
+            define = GNSS Mun A3
 
             PARAMETER
             {
                 name = NotA1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus A1
+                vessel = GNSS Mun A1
             }
 
             PARAMETER
@@ -117,7 +117,7 @@ CONTRACT_TYPE
                 name = NotA2
                 type = IsNotVessel
 
-                vessel = GNSS Minmus A2
+                vessel = GNSS Mun A2
             }
 
             PARAMETER
@@ -145,16 +145,16 @@ CONTRACT_TYPE
         name = BGroup
         type = Sequence
 
-        title = Launch satellties into the second orbital plane
+        title = Launch satellites into the second orbital plane
 
         rewardFunds = 25000.0
 
         PARAMETER
         {
-            name = GNSS Minmus B1
+            name = GNSS Mun B1
             type = VesselParameterGroup
 
-            define = GNSS Minmus B1
+            define = GNSS Mun B1
 
             PARAMETER
             {
@@ -177,17 +177,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus B2
+            name = GNSS Mun B2
             type = VesselParameterGroup
 
-            define = GNSS Minmus B2
+            define = GNSS Mun B2
 
             PARAMETER
             {
                 name = NotB1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus B1
+                vessel = GNSS Mun B1
             }
 
             PARAMETER
@@ -211,17 +211,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus B3
+            name = GNSS Mun B3
             type = VesselParameterGroup
 
-            define = GNSS Minmus B3
+            define = GNSS Mun B3
 
             PARAMETER
             {
                 name = NotB1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus B1
+                vessel = GNSS Mun B1
             }
 
             PARAMETER
@@ -229,7 +229,7 @@ CONTRACT_TYPE
                 name = NotB2
                 type = IsNotVessel
 
-                vessel = GNSS Minmus B2
+                vessel = GNSS Mun B2
             }
 
             PARAMETER
@@ -257,16 +257,16 @@ CONTRACT_TYPE
         name = CGroup
         type = Sequence
 
-        title = Launch satellties into the third orbital plane
+        title = Launch satellites into the third orbital plane
 
         rewardFunds = 25000.0
 
         PARAMETER
         {
-            name = GNSS Minmus C1
+            name = GNSS Mun C1
             type = VesselParameterGroup
 
-            define = GNSS Minmus C1
+            define = GNSS Mun C1
 
             PARAMETER
             {
@@ -289,17 +289,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus C2
+            name = GNSS Mun C2
             type = VesselParameterGroup
 
-            define = GNSS Minmus C2
+            define = GNSS Mun C2
 
             PARAMETER
             {
                 name = NotC1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus C1
+                vessel = GNSS Mun C1
             }
 
             PARAMETER
@@ -323,17 +323,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus C3
+            name = GNSS Mun C3
             type = VesselParameterGroup
 
-            define = GNSS Minmus C3
+            define = GNSS Mun C3
 
             PARAMETER
             {
                 name = NotC1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus C1
+                vessel = GNSS Mun C1
             }
 
             PARAMETER
@@ -341,7 +341,7 @@ CONTRACT_TYPE
                 name = NotC2
                 type = IsNotVessel
 
-                vessel = GNSS Minmus C2
+                vessel = GNSS Mun C2
             }
 
             PARAMETER
@@ -369,16 +369,16 @@ CONTRACT_TYPE
         name = DGroup
         type = Sequence
 
-        title = Launch satellties into the fourth orbital plane
+        title = Launch satellites into the fourth orbital plane
 
         rewardFunds = 25000.0
 
         PARAMETER
         {
-            name = GNSS Minmus D1
+            name = GNSS Mun D1
             type = VesselParameterGroup
 
-            define = GNSS Minmus D1
+            define = GNSS Mun D1
 
             PARAMETER
             {
@@ -401,17 +401,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus D2
+            name = GNSS Mun D2
             type = VesselParameterGroup
 
-            define = GNSS Minmus D2
+            define = GNSS Mun D2
 
             PARAMETER
             {
                 name = NotD1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus D1
+                vessel = GNSS Mun D1
             }
 
             PARAMETER
@@ -435,17 +435,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus D3
+            name = GNSS Mun D3
             type = VesselParameterGroup
 
-            define = GNSS Minmus D3
+            define = GNSS Mun D3
 
             PARAMETER
             {
                 name = NotD1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus D1
+                vessel = GNSS Mun D1
             }
 
             PARAMETER
@@ -453,7 +453,7 @@ CONTRACT_TYPE
                 name = NotD2
                 type = IsNotVessel
 
-                vessel = GNSS Minmus D2
+                vessel = GNSS Mun D2
             }
 
             PARAMETER
@@ -481,16 +481,16 @@ CONTRACT_TYPE
         name = EGroup
         type = Sequence
 
-        title = Launch satellties into the fifth orbital plane
+        title = Launch satellites into the fifth orbital plane
 
         rewardFunds = 25000.0
 
         PARAMETER
         {
-            name = GNSS Minmus E1
+            name = GNSS Mun E1
             type = VesselParameterGroup
 
-            define = GNSS Minmus E1
+            define = GNSS Mun E1
 
             PARAMETER
             {
@@ -513,17 +513,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus E2
+            name = GNSS Mun E2
             type = VesselParameterGroup
 
-            define = GNSS Minmus E2
+            define = GNSS Mun E2
 
             PARAMETER
             {
                 name = NotE1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus E1
+                vessel = GNSS Mun E1
             }
 
             PARAMETER
@@ -547,17 +547,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus E3
+            name = GNSS Mun E3
             type = VesselParameterGroup
 
-            define = GNSS Minmus E3
+            define = GNSS Mun E3
 
             PARAMETER
             {
                 name = NotE1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus E1
+                vessel = GNSS Mun E1
             }
 
             PARAMETER
@@ -565,7 +565,7 @@ CONTRACT_TYPE
                 name = NotE2
                 type = IsNotVessel
 
-                vessel = GNSS Minmus E2
+                vessel = GNSS Mun E2
             }
 
             PARAMETER
@@ -593,16 +593,16 @@ CONTRACT_TYPE
         name = FGroup
         type = Sequence
 
-        title = Launch satellties into the sixth orbital plane
+        title = Launch satellites into the sixth orbital plane
 
         rewardFunds = 25000.0
 
         PARAMETER
         {
-            name = GNSS Minmus F1
+            name = GNSS Mun F1
             type = VesselParameterGroup
 
-            define = GNSS Minmus F1
+            define = GNSS Mun F1
 
             PARAMETER
             {
@@ -625,17 +625,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus F2
+            name = GNSS Mun F2
             type = VesselParameterGroup
 
-            define = GNSS Minmus F2
+            define = GNSS Mun F2
 
             PARAMETER
             {
                 name = NotF1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus F1
+                vessel = GNSS Mun F1
             }
 
             PARAMETER
@@ -659,17 +659,17 @@ CONTRACT_TYPE
 
         PARAMETER
         {
-            name = GNSS Minmus F3
+            name = GNSS Mun F3
             type = VesselParameterGroup
 
-            define = GNSS Minmus F3
+            define = GNSS Mun F3
 
             PARAMETER
             {
                 name = NotF1
                 type = IsNotVessel
 
-                vessel = GNSS Minmus F1
+                vessel = GNSS Mun F1
             }
 
             PARAMETER
@@ -677,7 +677,7 @@ CONTRACT_TYPE
                 name = NotF2
                 type = IsNotVessel
 
-                vessel = GNSS Minmus F2
+                vessel = GNSS Mun F2
             }
 
             PARAMETER
@@ -709,7 +709,7 @@ CONTRACT_TYPE
         {
             ORBIT
             {
-                SMA = 360000
+                SMA = 1200000
                 ECC = 0
                 INC = 60
                 LPE = 0
@@ -724,7 +724,7 @@ CONTRACT_TYPE
         {
             ORBIT
             {
-                SMA = 360000
+                SMA = 1200000
                 ECC = 0
                 INC = 60
                 LPE = 0
@@ -739,7 +739,7 @@ CONTRACT_TYPE
         {
             ORBIT
             {
-                SMA = 360000
+                SMA = 1200000
                 ECC = 0
                 INC = 60
                 LPE = 0
@@ -754,7 +754,7 @@ CONTRACT_TYPE
         {
             ORBIT
             {
-                SMA = 360000
+                SMA = 1200000
                 ECC = 0
                 INC = 60
                 LPE = 0
@@ -769,7 +769,7 @@ CONTRACT_TYPE
         {
             ORBIT
             {
-                SMA = 360000
+                SMA = 1200000
                 ECC = 0
                 INC = 60
                 LPE = 0
@@ -784,7 +784,7 @@ CONTRACT_TYPE
         {
             ORBIT
             {
-                SMA = 360000
+                SMA = 1200000
                 ECC = 0
                 INC = 60
                 LPE = 0
