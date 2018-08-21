@@ -517,8 +517,17 @@ namespace KerbStar
         }
 
         Vector2 displayScrollVector;        FileIO.GPS_Coordinates selectedCoordinate = null;        bool b;
-        private void DestWindowGUI(int windowID)        {            GUILayout.BeginVertical();            displayScrollVector = GUILayout.BeginScrollView(displayScrollVector);            foreach (var entry in FileIO.gdDestinations)            {                GUILayout.BeginHorizontal();                b = (selectedCoordinate != null && selectedCoordinate.sDestName == entry.Key);
-                if (GUILayout.Toggle(b, entry.Key))                {                    selectedCoordinate = entry.Value;                }                GUILayout.EndHorizontal();            }            GUILayout.EndScrollView();
+        private void DestWindowGUI(int windowID)        {            GUILayout.BeginVertical();            displayScrollVector = GUILayout.BeginScrollView(displayScrollVector);            foreach (var entry in FileIO.gdDestinations)            {                if (entry.Value.sCelestialBodyName == FlightGlobals.ActiveVessel.mainBody.name)
+                {
+                    GUILayout.BeginHorizontal();
+                    b = (selectedCoordinate != null && selectedCoordinate.sDestName == entry.Key);
+
+                    if (GUILayout.Toggle(b, entry.Key))
+                    {
+                        selectedCoordinate = entry.Value;
+                    }
+                    GUILayout.EndHorizontal();
+                }            }            GUILayout.EndScrollView();
             if (selectedCoordinate != null)            {                gsDestName = selectedCoordinate.sDestName;                gfDestLat = selectedCoordinate.fDestLat;                gfDestLon = selectedCoordinate.fDestLon;                gsLatDeg = Math.Floor(Math.Abs(gfDestLat)).ToString();
                 double min =  (Math.Abs(gfDestLat) - Math.Floor(Math.Abs(gfDestLat))) * 60.0f;
                 if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
@@ -546,7 +555,7 @@ namespace KerbStar
                 //                loadDestination = false;
             }            if (GUILayout.Button("Delete"))            {                FileIO.gdDestinations.Remove(selectedCoordinate.sDestName);                FileIO.SaveData(this);            }            if (GUILayout.Button("Close"))
             {
-                loadDestination = false;                AppLauncherKerbalGPS.toolbarControl.SetFalse(true);                FileIO.SaveData(this);
+                loadDestination = false;                                FileIO.SaveData(this);
             }            GUILayout.EndVertical();            GUI.DragWindow();        }
 
         private void WindowGUI(int windowID)
@@ -749,7 +758,7 @@ namespace KerbStar
                
                 if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
                 {
-                     gsLatMin =min.ToString("#0.0");
+                     gsLatMin = min.ToString("#0.0");
                 }
                 else
                 {

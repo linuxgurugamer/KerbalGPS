@@ -82,7 +82,7 @@ namespace KerbStar
         }
         public override string GetInfo()
         {
-            return "GPS Range: " + gpsRange + "m"; 
+            return "GPS Range: " + gpsRange + "m" + "\n" + base.resHandler.PrintModuleResources(1); 
         }
 
     }

@@ -26,6 +26,7 @@ namespace KerbStar
         public class GPS_Coordinates
         {
             public string sDestName;
+            public string sCelestialBodyName;
             public float fDestLat;
             public float fDestLon;
 
@@ -35,6 +36,7 @@ namespace KerbStar
             public GPS_Coordinates(string name, float lat, float lon)
             {
                 sDestName = name;
+                sCelestialBodyName = FlightGlobals.ActiveVessel.mainBody.name;
                 fDestLat = lat;
                 fDestLon = lon;
             }
@@ -117,6 +119,9 @@ namespace KerbStar
                             GPS_Coordinates coordinates = new GPS_Coordinates();
 
                             coordinates.sDestName = entry.GetValue("sDestName");
+                            coordinates.sCelestialBodyName = entry.GetValue("sCelestialBodyName");
+                            if (coordinates.sCelestialBodyName == null)
+                                coordinates.sCelestialBodyName = FlightGlobals.GetHomeBody().name;
                             coordinates.fDestLat = (float)Double.Parse(SafeLoad(entry.GetValue("fDestLat"), KerbalGPS.DEF_DESTLAT));
                             coordinates.fDestLon = (float)Double.Parse(SafeLoad(entry.GetValue("fDestLon"), KerbalGPS.DEF_DESTLON));
                             gdDestinations.Add(coordinates.sDestName, coordinates);
@@ -141,6 +146,7 @@ namespace KerbStar
                 ConfigNode n = new ConfigNode();
 
                 n.AddValue("sDestName", entry.Key);
+                n.AddValue("sCelestialBodyName", entry.Value.sCelestialBodyName);
                 n.AddValue("fDestLat", entry.Value.fDestLat);
                 n.AddValue("fDestLon", entry.Value.fDestLon);
                 dataNode.AddNode(DESTNODE, n);
