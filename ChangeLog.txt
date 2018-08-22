@@ -1,4 +1,7 @@
-1.1.0.6
+1.1.0.7
+	Rebuild to add back missing icons
+
+1.1.0.6	
 	Fixed bug where closing the Destination window closed both windows
 	Added display of EC usage
 	Added planet name to destination record
