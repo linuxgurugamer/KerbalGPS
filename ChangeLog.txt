@@ -1,3 +1,6 @@
+1.1.0.8
+	Optimized the OnGUI to only initialize GUIStyles one time rather than every time through
+
 1.1.0.7
 	Rebuild to add back missing icons
 

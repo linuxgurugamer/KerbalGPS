@@ -87,14 +87,14 @@ namespace KerbStar
                 gpsRange = r;
             }
         }
-        public List<GNSSSatelliteInfo>GNSSSatteliteInfoList = new List<GNSSSatelliteInfo>();
+        public List<GNSSSatelliteInfo> GNSSSatteliteInfoList = new List<GNSSSatelliteInfo>();
         //public List<string> GNSSSatelliteNames = new List<string>();
         //public List<Guid> GNSSSatelliteIDs = new List<Guid>();
 
         //public bool displayGUI;
 
         static internal KerbalGPS Instance;
-  
+
         /////////////////////////////////////////////////////////////////////////////////////////////
         //
         //    Private Variables
@@ -220,7 +220,7 @@ namespace KerbStar
             if (!HighLogic.LoadedSceneIsFlight)
                 return;
 
-            
+
             this.part.customPartData = "[GPS Dest:," + gfDestLat.ToString() + "," + gfDestLon.ToString() + "]";
 
             base.OnSave(node);
@@ -305,7 +305,7 @@ namespace KerbStar
                             gfDeltaTime = 0.0f;
                         }
 
-                     
+
                         if (gyReceiverOn)
                         {
                             if (guNumSats >= 4)
@@ -386,12 +386,12 @@ namespace KerbStar
                                         {
                                             string r = "500000";
                                             m.moduleValues.TryGetValue("gpsRange", ref r);
-                                            gpsRange = Double.Parse(FileIO.SafeLoad(r, 500000f));                                            
+                                            gpsRange = Double.Parse(FileIO.SafeLoad(r, 500000f));
                                         }
                                     }
                                     if (CheckForEC(varVessel))
                                     {
-                                       
+
                                         GNSSSatteliteInfoList.Add(new GNSSSatelliteInfo(varVessel.name, varVessel.id, gpsRange));
                                         //GNSSSatelliteNames.Add(varVessel.name);
                                         //GNSSSatelliteIDs.Add(varVessel.id);
@@ -435,9 +435,9 @@ namespace KerbStar
             else
             {
                 ProtoVessel proto = vessel.protoVessel;
-                
+
                 var res = new SortedDictionary<string, ResourceData>();
-                for (int i = proto.protoPartSnapshots.Count - 1; i >= 0; i--)                
+                for (int i = proto.protoPartSnapshots.Count - 1; i >= 0; i--)
                 {
                     ProtoPartSnapshot p = proto.protoPartSnapshots[i];
 
@@ -470,17 +470,39 @@ namespace KerbStar
         *********************************************************************************************/
         bool loadDestination = false;
         GUIStyle varButtonStyle = null;
+        static GUIStyle varTextStyle;
+        static GUIStyle varHemisphereStyle;
+        static GUIStyle varLabelStyle;
 
         private void OnGUI()
         {
             if (varButtonStyle == null)
             {
                 varButtonStyle = new GUIStyle(GUI.skin.button);
+                varTextStyle = new GUIStyle(GUI.skin.textField);
+                varHemisphereStyle = new GUIStyle(GUI.skin.textField);
+                varLabelStyle = new GUIStyle(GUI.skin.label);
                 //varButtonStyle.fixedWidth = GPS_GUI_WIDTH - 5.0f;
                 varButtonStyle.fixedHeight = 20.0f;
                 //varButtonStyle.contentOffset = new Vector2(0, 2);
                 varButtonStyle.normal.textColor = varButtonStyle.focused.textColor = Color.white;
                 varButtonStyle.hover.textColor = varButtonStyle.active.textColor = Color.yellow;
+
+                varTextStyle.alignment = TextAnchor.UpperCenter;
+                varTextStyle.normal.textColor = varTextStyle.focused.textColor = Color.white;
+                varTextStyle.hover.textColor = varTextStyle.active.textColor = Color.yellow;
+                varTextStyle.padding = new RectOffset(0, 0, 0, 0);
+                varTextStyle.fixedHeight = 16.0f;
+                varTextStyle.fixedWidth = 35.0f;
+
+                varHemisphereStyle.alignment = TextAnchor.UpperCenter;
+                varHemisphereStyle.normal.textColor = varHemisphereStyle.focused.textColor = Color.white;
+                varHemisphereStyle.hover.textColor = varHemisphereStyle.active.textColor = Color.yellow;
+                varHemisphereStyle.padding = new RectOffset(0, 0, 0, 0);
+                varHemisphereStyle.fixedHeight = 16.0f;
+                varHemisphereStyle.fixedWidth = 20.0f;
+
+                varLabelStyle.padding = new RectOffset(0, 0, 0, 7);
             }
             if (!hideUI && amIMaster && AppLauncherKerbalGPS.Instance.displayGUI)
             {
@@ -529,7 +551,7 @@ namespace KerbStar
                     GUILayout.EndHorizontal();
                 }            }            GUILayout.EndScrollView();
             if (selectedCoordinate != null)            {                gsDestName = selectedCoordinate.sDestName;                gfDestLat = selectedCoordinate.fDestLat;                gfDestLon = selectedCoordinate.fDestLon;                gsLatDeg = Math.Floor(Math.Abs(gfDestLat)).ToString();
-                double min =  (Math.Abs(gfDestLat) - Math.Floor(Math.Abs(gfDestLat))) * 60.0f;
+                double min = (Math.Abs(gfDestLat) - Math.Floor(Math.Abs(gfDestLat))) * 60.0f;
                 if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
                 {
                     gsLatMin = ((Math.Abs(gfDestLat) - Math.Floor(Math.Abs(gfDestLat))) * 60.0f).ToString("#0.0");
@@ -555,7 +577,8 @@ namespace KerbStar
                 //                loadDestination = false;
             }            if (GUILayout.Button("Delete"))            {                FileIO.gdDestinations.Remove(selectedCoordinate.sDestName);                FileIO.SaveData(this);            }            if (GUILayout.Button("Close"))
             {
-                loadDestination = false;                                FileIO.SaveData(this);
+                loadDestination = false;
+                FileIO.SaveData(this);
             }            GUILayout.EndVertical();            GUI.DragWindow();        }
 
         private void WindowGUI(int windowID)
@@ -583,7 +606,7 @@ namespace KerbStar
                     gsModeString = "Position";
                 }
                 GUILayout.EndHorizontal();
-    
+
                 if (gbDisplayMode == MODE_GPS_POSITION)
                 {
 
@@ -624,28 +647,36 @@ namespace KerbStar
          
         *********************************************************************************************/
 
+
+        //static bool styleInitted = false;
         private void drawDestinationGUI()
         {
+#if false
             GUIStyle varTextStyle = new GUIStyle(GUI.skin.textField);
             GUIStyle varHemisphereStyle = new GUIStyle(GUI.skin.textField);
             GUIStyle varLabelStyle = new GUIStyle(GUI.skin.label);
+#endif
+#if false
+            if (!styleInitted)
+            {
+                styleInitted = true;
+                varTextStyle.alignment = TextAnchor.UpperCenter;
+                varTextStyle.normal.textColor = varTextStyle.focused.textColor = Color.white;
+                varTextStyle.hover.textColor = varTextStyle.active.textColor = Color.yellow;
+                varTextStyle.padding = new RectOffset(0, 0, 0, 0);
+                varTextStyle.fixedHeight = 16.0f;
+                varTextStyle.fixedWidth = 35.0f;
 
-            varTextStyle.alignment = TextAnchor.UpperCenter;
-            varTextStyle.normal.textColor = varTextStyle.focused.textColor = Color.white;
-            varTextStyle.hover.textColor = varTextStyle.active.textColor = Color.yellow;
-            varTextStyle.padding = new RectOffset(0, 0, 0, 0);
-            varTextStyle.fixedHeight = 16.0f;
-            varTextStyle.fixedWidth = 35.0f;
+                varHemisphereStyle.alignment = TextAnchor.UpperCenter;
+                varHemisphereStyle.normal.textColor = varHemisphereStyle.focused.textColor = Color.white;
+                varHemisphereStyle.hover.textColor = varHemisphereStyle.active.textColor = Color.yellow;
+                varHemisphereStyle.padding = new RectOffset(0, 0, 0, 0);
+                varHemisphereStyle.fixedHeight = 16.0f;
+                varHemisphereStyle.fixedWidth = 20.0f;
 
-            varHemisphereStyle.alignment = TextAnchor.UpperCenter;
-            varHemisphereStyle.normal.textColor = varHemisphereStyle.focused.textColor = Color.white;
-            varHemisphereStyle.hover.textColor = varHemisphereStyle.active.textColor = Color.yellow;
-            varHemisphereStyle.padding = new RectOffset(0, 0, 0, 0);
-            varHemisphereStyle.fixedHeight = 16.0f;
-            varHemisphereStyle.fixedWidth = 20.0f;
-
-            varLabelStyle.padding = new RectOffset(0, 0, 0, 7);
-
+                varLabelStyle.padding = new RectOffset(0, 0, 0, 7);
+            }
+#endif
             GUILayout.Label("Distance: " + gsDistance);
             GUILayout.Label("Heading: " + gsHeading);
 
@@ -692,7 +723,7 @@ namespace KerbStar
 
             if ((gsLatDeg.Length != 0) && (gsLatMin.Length > 2) && (gsLatNS.Length != 0) && (gsLonDeg.Length != 0) && (gsLonMin.Length > 2) && (gsLonEW.Length != 0))
             {
-                gfDestLat = ParseNS() * (ParseNumericString(gsLatDeg) + ParseNumericString(gsLatMin) / 60.0f + ParseNumericString(gsLatSec)/3600.0f);
+                gfDestLat = ParseNS() * (ParseNumericString(gsLatDeg) + ParseNumericString(gsLatMin) / 60.0f + ParseNumericString(gsLatSec) / 3600.0f);
                 gfDestLon = ParseEW() * (ParseNumericString(gsLonDeg) + ParseNumericString(gsLonMin) / 60.0f + ParseNumericString(gsLonSec) / 3600.0f);
 
                 if (gfDestLat > 90) gfDestLat = 90.0f;
@@ -708,7 +739,7 @@ namespace KerbStar
                 }
                 else
                 {
-                   
+
                     gsLatMin = Math.Floor(min).ToString();
                     double sec = min - Math.Floor(min);
                     gsLatSec = sec.ToString("#0.0");
@@ -722,7 +753,7 @@ namespace KerbStar
                 }
                 else
                 {
-                    
+
                     gsLonMin = Math.Floor(min).ToString();
                     double sec = min - Math.Floor(min);
                     gsLonSec = sec.ToString("#0.0");
@@ -738,7 +769,8 @@ namespace KerbStar
                         if (gsLonMin.StartsWith(".")) gsLonMin = "0" + gsLonMin;
                         if (gsLatMin.Length <= 2) gsLatMin = gsLatMin + ".0";
                         if (gsLonMin.Length <= 2) gsLonMin = gsLonMin + ".0";
-                    } else
+                    }
+                    else
                     {
                         if (gsLatSec.StartsWith(".")) gsLatSec = "0" + gsLatSec;
                         if (gsLonSec.StartsWith(".")) gsLonSec = "0" + gsLonSec;
@@ -755,10 +787,10 @@ namespace KerbStar
             {
                 gsLatDeg = Math.Floor(Math.Abs(gfOrigLat)).ToString();
                 double min = (Math.Abs(gfOrigLat) - Math.Floor(Math.Abs(gfOrigLat))) * 60.0f;
-               
+
                 if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
                 {
-                     gsLatMin = min.ToString("#0.0");
+                    gsLatMin = min.ToString("#0.0");
                 }
                 else
                 {
@@ -808,7 +840,7 @@ namespace KerbStar
 
         private void drawGUI()
         {
-           
+
 
         }
 
@@ -892,7 +924,7 @@ namespace KerbStar
 
             }
         }
-        
+
         public void Start()
         {
             Log.Info("Start");
@@ -978,11 +1010,11 @@ namespace KerbStar
 
         private float ParseNS()
         {
-            if (gsLatNS == "N" )
+            if (gsLatNS == "N")
             {
                 return 1.0f;
             }
-            else 
+            else
             {
                 return -1.0f;
             }
@@ -1004,7 +1036,7 @@ namespace KerbStar
             {
                 return 1.0f;
             }
-            else 
+            else
             {
                 return -1.0f;
             }
@@ -1026,7 +1058,7 @@ namespace KerbStar
                 masterSet = false;
                 amIMaster = false;
             }
-            for (int i = vessel.parts.Count -1; i >=0; i--)
+            for (int i = vessel.parts.Count - 1; i >= 0; i--)
             //foreach (Part part in vessel.parts)
             {
                 Part part = vessel.parts[i];
@@ -1048,7 +1080,7 @@ namespace KerbStar
                 //foreach (Part part in vessel.parts)
                 {
                     Part part = vessel.parts[i];
- 
+
                     module = part.Modules.GetModule<KerbalGPS>();
                     if (module != null)
                     {
