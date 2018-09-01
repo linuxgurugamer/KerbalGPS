@@ -504,7 +504,7 @@ namespace KerbStar
 
                 varLabelStyle.padding = new RectOffset(0, 0, 0, 7);
             }
-            if (!hideUI && amIMaster && AppLauncherKerbalGPS.Instance.displayGUI)
+            if (!hideUI && !hideUIwhenPaused && amIMaster && AppLauncherKerbalGPS.Instance.displayGUI)
             {
                 try
                 {
@@ -949,24 +949,30 @@ namespace KerbStar
             GameEvents.onHideUI.Add(this.HideUI);
             GameEvents.onShowUI.Add(this.ShowUI);
             GameEvents.onGamePause.Add(this.HideUIWhenPaused);
-            GameEvents.onGameUnpause.Add(this.ShowUI);
+            GameEvents.onGameUnpause.Add(this.ShowUIwhenPaused);
         }
         /// <summary>
         /// Hides all user interface elements.
         /// </summary>
         bool hideUI = false;
+        bool hideUIwhenPaused = false;
         public void HideUI()
         {
             hideUI = true;
         }
-        public void HideUIWhenPaused()
-        {
-            if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().hideWhenPaused)
-                hideUI = true;
-        }
         void ShowUI()
         {
             hideUI = false;
+        }
+
+        public void HideUIWhenPaused()
+        {
+            if (HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().hideWhenPaused)
+                hideUIwhenPaused = true;
+        }
+        void ShowUIwhenPaused()
+        {
+            hideUIwhenPaused = false;
         }
 
         public void OnDestroy()
@@ -974,7 +980,7 @@ namespace KerbStar
             GameEvents.onHideUI.Remove(this.HideUI);
             GameEvents.onShowUI.Remove(this.ShowUI);
             GameEvents.onGamePause.Remove(this.HideUIWhenPaused);
-            GameEvents.onGameUnpause.Remove(this.ShowUI);
+            GameEvents.onGameUnpause.Remove(this.ShowUIwhenPaused);
             Log.Info("OnDestroy");
             CleanUp();
         }
