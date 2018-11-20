@@ -78,15 +78,23 @@
     <PostBuildEvent>
 start /D D:\Users\jbb\github\KerbalGPS/WAIT deploy.bat  $(TargetDir) $(TargetFileName)
 
+
+
 if $(ConfigurationName) == Release (
 
+
+
 	start /D D:\Users\jbb\github\KerbalGPS /WAIT buildRelease.bat $(TargetDir) $(TargetFileName)
+
+
 
 )</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
 set textTemplatingPath="%25ProgramFiles(x86)%25\Microsoft Visual Studio\2017\Community\Common7\IDE\texttransform.exe"
+
+
 
 %25textTemplatingPath%25 "$(ProjectDir)AssemblyVersion.tt"
 
