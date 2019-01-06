@@ -1,7 +1,7 @@
 {
   "NAME": "KerbalGPS",
   "URL": "http://ksp.spacetux.net/avc/KerbalGPS",
-    "DOWNLOAD": "https://github.com/linuxgurugamer/KerbalGPS/releases",
+  "DOWNLOAD": "https://github.com/linuxgurugamer/KerbalGPS/releases",
   "GITHUB": {
     "USERNAME": "linuxgurugamer",
     "REPOSITORY": "KerbalGPS"
@@ -21,10 +21,5 @@
     "MAJOR": 1,
     "MINOR": 5,
     "PATCH": 1
-  },
-  "KSP_VERSION_MAX": {
-    "MAJOR": 1,
-    "MINOR": 5,
-    "PATCH": 99
   }
 }
