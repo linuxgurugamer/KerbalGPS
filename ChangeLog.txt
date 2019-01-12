@@ -1,3 +1,7 @@
+1.1.0.14
+	Thanks to github user @JarredAllen for this:
+		Add Support for RSS (mainly for Earth)
+
 1.1.0.12
 	Added EC consumption to GPS receivers
 
