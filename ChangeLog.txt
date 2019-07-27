@@ -1,6 +1,11 @@
 1.1.1
 	Added InstallChecker
 	Updated AssemblyVersion
+	Thanks to @Gordon-Dry for this:
+		Moved RSS scale patch from the FigaroTransmitter config into a generic patch to also rescale the ModuleGPSTransmitter for other parts that added it.
+		Supports:
+			RealSolarSystem
+			SigmaDimensions
 
 1.1.0.14
 	Thanks to github user @JarredAllen for this:
