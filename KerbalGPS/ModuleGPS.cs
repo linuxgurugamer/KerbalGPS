@@ -9,7 +9,7 @@ namespace KerbStar
 {
     class ModuleGPSTransmitter: PartModule, IModuleInfo
     {
-        const string MODULETITLE = "GPS Transmitter";
+        const string MODULETITLE = "#KerbalGPS_UI_ModuleTitle";//GPS Transmitter
         int ElectricityId;
 
         [KSPField(isPersistant = true)]
@@ -19,7 +19,7 @@ namespace KerbStar
         [KSPField(isPersistant = true)]
         public bool gpsActive = false;
 
-        [KSPEvent(active = true, guiActive = true, guiActiveEditor = true, guiActiveUnfocused = false, guiName = "Turn on GPS")]
+        [KSPEvent(active = true, guiActive = true, guiActiveEditor = true, guiActiveUnfocused = false, guiName = "#KerbalGPS_BtnUI_GPSOn")]//Turn on GPS
         public void ToggleGPS()
         {
             if (HighLogic.LoadedSceneIsFlight)
@@ -33,11 +33,11 @@ namespace KerbStar
         {
             if (gpsActive)
             {
-                Events["ToggleGPS"].guiName = "Turn off GPS";
+                Events["ToggleGPS"].guiName = Localizer.Format("#KerbalGPS_BtnUI_GPSOff");//"Turn off GPS"
             }
             else
             {
-                Events["ToggleGPS"].guiName = "Turn on GPS";
+                Events["ToggleGPS"].guiName = Localizer.Format("#KerbalGPS_BtnUI_GPSOn");//"Turn on GPS"
             }
 
         }
@@ -64,7 +64,7 @@ namespace KerbStar
         // IModuleInfo follows
         public string GetModuleTitle()
         {
-            return MODULETITLE;
+            return Localizer.Format(MODULETITLE);
         }
         public override string GetModuleDisplayName()
         {
@@ -82,7 +82,7 @@ namespace KerbStar
         }
         public override string GetInfo()
         {
-            return "GPS Range: " + gpsRange + "m" + "\n" + base.resHandler.PrintModuleResources(1); 
+            return Localizer.Format("#KerbalGPS_UI_ModuleInfo") + ": " + gpsRange + "m" + "\n" + base.resHandler.PrintModuleResources(1); //GPS Range
         }
 
     }
