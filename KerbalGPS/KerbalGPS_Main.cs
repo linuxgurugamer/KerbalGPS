@@ -10,13 +10,13 @@
 ////   creative commons license. See <http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode> 
 ////   for full details.
 ////
-////   Attribution � You are free to modify this code, so long as you mention that the resulting
+////   Attribution — You are free to modify this code, so long as you mention that the resulting
 ////                 work is based upon or adapted from this library. This KerbalGPS_Main.cs
 ////                 code library is the original work of Kevin Wilder.
 ////
 ////   Non-commercial - You may not use this work for commercial purposes.
 ////
-////   Share Alike � If you alter, transform, or build upon this work, you may distribute the 
+////   Share Alike — If you alter, transform, or build upon this work, you may distribute the 
 ////                 resulting work only under the same or similar license to the CC BY-NC-SA 3.0
 ////                 license.
 ////
@@ -714,7 +714,7 @@ namespace KerbStar
             GUILayout.Label(Localizer.Format("#KerbalGPS_UI_Lat") + ":", varLabelStyle);//Lat
             GUILayout.FlexibleSpace();
             gsLatDeg = GUILayout.TextArea(gsLatDeg, 3, varTextStyle);
-            GUILayout.Label("�", varLabelStyle);
+            GUILayout.Label("°", varLabelStyle);
             gsLatMin = GUILayout.TextArea(gsLatMin, 4, varTextStyle);
             GUILayout.Label("'", varLabelStyle);
             if (!HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
@@ -741,7 +741,7 @@ namespace KerbStar
             GUILayout.Label(Localizer.Format("#KerbalGPS_UI_Lon") + ":", varLabelStyle);//Lon
             GUILayout.FlexibleSpace();
             gsLonDeg = GUILayout.TextArea(gsLonDeg, 3, varTextStyle);
-            GUILayout.Label("�", varLabelStyle);
+            GUILayout.Label("°", varLabelStyle);
             gsLonMin = GUILayout.TextArea(gsLonMin, 4, varTextStyle);
             GUILayout.Label("'", varLabelStyle);
             if (!HighLogic.CurrentGame.Parameters.CustomParams<KerbalGPSSettings>().useDecimalMinutes)
