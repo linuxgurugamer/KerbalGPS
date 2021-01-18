@@ -1,5 +1,10 @@
 ChangeLog
 
+1.2.1
+	Added patch to allow gps to be added to all parts with modulecommand
+	Thanks to github user @thunder175 for this:
+		Create KerbalGPS_JNSQ.cfg
+
 1.2.0.1
 	Thanks to user @tinygrox for this:
 		Added localization
