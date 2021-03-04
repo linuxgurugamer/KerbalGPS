@@ -1,5 +1,8 @@
 ChangeLog
 
+1.2.1.1
+	Fixed GNSS contract generation for planets other than Kerbin
+
 1.2.1
 	Added patch to allow gps to be added to all parts with modulecommand
 	Thanks to github user @thunder175 for this:
