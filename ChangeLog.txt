@@ -1,5 +1,9 @@
 ChangeLog
 
+1.2.1.2
+	Thanks for user @xmnovotny for this:
+		Fixed orbit index of 2 satellites from first plane for GNSS contract generation for planets other than Kerbin
+
 1.2.1.1
 	Fixed GNSS contract generation for planets other than Kerbin
 
