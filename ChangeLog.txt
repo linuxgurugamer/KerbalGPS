@@ -1,5 +1,10 @@
 ChangeLog
 
+1.2.1.3
+	Renamed DLL for CKAN compatibility
+	Added AssemblyFileVersion
+	Updated version file for 1.12
+
 1.2.1.2
 	Thanks for user @xmnovotny for this:
 		Fixed orbit index of 2 satellites from first plane for GNSS contract generation for planets other than Kerbin
