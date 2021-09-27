@@ -1,5 +1,9 @@
 ChangeLog
 
+1.2.1.4
+	Added AssemblyFileVersion
+	Updated version file for 1.12
+
 1.2.1.3
 	Renamed DLL for CKAN compatibility
 	Added AssemblyFileVersion
