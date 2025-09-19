@@ -1,5 +1,8 @@
 ChangeLog
 
+1.2.1.5
+	Updated version file to use github of new version info
+
 1.2.1.4
 	Added AssemblyFileVersion
 	Updated version file for 1.12
