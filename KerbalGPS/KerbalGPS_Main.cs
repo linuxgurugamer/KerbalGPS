@@ -63,16 +63,16 @@ namespace KerbStar
         [KSPField]
         public string EarthTime = "FALSE";
 
-        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Position")]//Position
-        public string gsPosition;
-
-        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Altitude")]//Altitude
-        public string gsAltitude;
-
-        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_VisibleSatellites")]//Visible Satellites
+        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_VisibleSatellites", groupName = GPS_GROUP, groupStartCollapsed = true)]
         public UInt16 guNumSats;
-
-        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Accuracy")]//Accuracy
+        
+        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Position", groupName = GPS_GROUP)]
+        public string gsPosition;
+        
+        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Altitude", groupName = GPS_GROUP)]
+        public string gsAltitude;
+        
+        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Accuracy", groupName = GPS_GROUP)]
         public string gsAccuracy;
 
         public class GNSSSatelliteInfo
@@ -175,7 +175,7 @@ namespace KerbStar
         private const string FIGARO_TRANSMITTER_PART_NAME = "FigaroTransmitter";
 
         private const string NULL_ACRONYM = "NONE";
-
+        private const string GPS_GROUP = "KerbalGPS_Cover";
 
         /////////////////////////////////////////////////////////////////////////////////////////////
         //
@@ -256,7 +256,7 @@ namespace KerbStar
                         {
                             // Search for new GNSS satellites every 30 seconds, and then only if the number of vessels has changed:
                             TimeSpan varCheckInterval = DateTime.Now - gLastSVCheckTime;
-                            if (varCheckInterval.Seconds > 30)
+                            if (varCheckInterval.TotalSeconds > 30)
                             {
                                 Find_GNSS_Satellites();
                                 gLastSVCheckTime = DateTime.Now;
@@ -276,7 +276,7 @@ namespace KerbStar
                                 gsPosition = gsLat + " " + gsLon;
                                 gsAltitude = Math.Round(gfFilteredAltitude, 1).ToString("#0.0") + " m";
                                 gsAccuracy = Math.Round(gfPositionErrorEstimate, 1).ToString("#0.0") + " m";
-
+                                UpdateGPSGroupHeader();
                                 if (gbDisplayMode == MODE_GPS_POSITION)
                                 {
                                     gsTime = clsGPSMath.Time_to_String(Planetarium.GetUniversalTime(), (EarthTime == "TRUE"));
@@ -291,7 +291,6 @@ namespace KerbStar
                             {
                                 // Sats not found, set icon
                                 //GPSToolbar.AppLauncherKerbalGPS.SetAppLauncherButtonTexture(GPSToolbar.AppLauncherKerbalGPS.rcvrStatus.NOSATS);
-
                                 gsTime = clsGPSMath.Time_to_String(Planetarium.GetUniversalTime(), (EarthTime == "TRUE"));
                                 gsLat = "N/A";
                                 gsLon = "N/A";
@@ -300,7 +299,7 @@ namespace KerbStar
                                 gsHeading = "N/A";
                                 gsDistance = "N/A";
                                 gsPosition = gsLat;
-                                gsAccuracy = "N/A";
+                                UpdateGPSGroupHeader();
                             }
 
                             gfDeltaTime = 0.0f;
@@ -666,7 +665,40 @@ namespace KerbStar
 
         }
 
-
+        private string GetFixQuality()
+        {
+            if (guNumSats >= 4)
+                return "FIX";
+        
+            if (guNumSats >= 1)
+                return "WEAK";
+        
+            return "NO SIGNAL";
+        }
+        
+        private string GetSignalColor()
+        {
+            if (guNumSats >= 4)
+                return "green";
+        
+            if (guNumSats >= 1)
+                return "orange";
+        
+            return "red";
+        }
+        
+        private void UpdateGPSGroupHeader()
+        {
+            if (!HighLogic.LoadedSceneIsFlight) return;
+        
+            string fixQuality = GetFixQuality();
+            string color = GetSignalColor();
+        
+            string satText = guNumSats == 1 ? "1 SAT" : $"{guNumSats} SATS";
+        
+            Fields["guNumSats"].group.displayName =
+                $"<color={color}>GPS Cover ({fixQuality} • {satText})</color>";
+        }
         /********************************************************************************************
         Function Name: drawDestiationGUI
         Parameters: void
