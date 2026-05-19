@@ -36,13 +36,12 @@
 ////
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+using ClickThroughFix;
+using KSP.Localization;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using UnityEngine;
-using System.Linq;
-using ClickThroughFix;
-using KSP.Localization;
 
 namespace KerbStar
 {
@@ -63,16 +62,17 @@ namespace KerbStar
         [KSPField]
         public string EarthTime = "FALSE";
 
-        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_VisibleSatellites", groupName = GPS_GROUP, groupStartCollapsed = true)]
+
+        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_VisibleSatellites", groupName = GPS_GROUP, groupDisplayName = GPS_GROUP_DISPLAY_NAME, groupStartCollapsed = true)]
         public UInt16 guNumSats;
-        
-        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Position", groupName = GPS_GROUP)]
+
+        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Position", groupName = GPS_GROUP, groupStartCollapsed = true)]
         public string gsPosition;
-        
-        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Altitude", groupName = GPS_GROUP)]
+
+        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Altitude", groupName = GPS_GROUP, groupStartCollapsed = true)]
         public string gsAltitude;
-        
-        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Accuracy", groupName = GPS_GROUP)]
+
+        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Accuracy", groupName = GPS_GROUP, groupStartCollapsed = true)]
         public string gsAccuracy;
 
         public class GNSSSatelliteInfo
@@ -256,7 +256,7 @@ namespace KerbStar
                         {
                             // Search for new GNSS satellites every 30 seconds, and then only if the number of vessels has changed:
                             TimeSpan varCheckInterval = DateTime.Now - gLastSVCheckTime;
-                            if (varCheckInterval.TotalSeconds > 30)
+                            if (varCheckInterval.Seconds > 30)
                             {
                                 Find_GNSS_Satellites();
                                 gLastSVCheckTime = DateTime.Now;
@@ -669,35 +669,37 @@ namespace KerbStar
         {
             if (guNumSats >= 4)
                 return "FIX";
-        
+
             if (guNumSats >= 1)
                 return "WEAK";
-        
+
             return "NO SIGNAL";
         }
-        
+
         private string GetSignalColor()
         {
             if (guNumSats >= 4)
                 return "green";
-        
+
             if (guNumSats >= 1)
                 return "orange";
-        
+
             return "red";
         }
-        
+
         private void UpdateGPSGroupHeader()
         {
             if (!HighLogic.LoadedSceneIsFlight) return;
-        
+
             string fixQuality = GetFixQuality();
             string color = GetSignalColor();
-        
+
             string satText = guNumSats == 1 ? "1 SAT" : $"{guNumSats} SATS";
-        
+
             Fields["guNumSats"].group.displayName =
-                $"<color={color}>GPS Cover ({fixQuality} • {satText})</color>";
+            Fields["gsPosition"].group.displayName =
+            Fields["gsAltitude"].group.displayName =
+            Fields["gsAccuracy"].group.displayName = $"<color={color}>GPS Cover ({fixQuality} • {satText})</color>";
         }
         /********************************************************************************************
         Function Name: drawDestiationGUI

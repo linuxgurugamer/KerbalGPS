@@ -1,5 +1,10 @@
 ChangeLog
 
+1.2.2
+	Thanks to github user @EmberSkyMedia for this:
+		Updated code such that the GPS now has a PAW group (it was making capsules PAWs quite long).
+		Paw Group Label colour changes based on Sat Number and shows Sat Number Rest of the variables are in the group as before.		
+
 1.2.1.5
 	Updated version file to use github of new version info
 
