@@ -1042,7 +1042,10 @@ namespace KerbStar
             GameEvents.onShowUI.Add(this.ShowUI);
             GameEvents.onGamePause.Add(this.HideUIWhenPaused);
             GameEvents.onGameUnpause.Add(this.ShowUIwhenPaused);
+
+            UpdateGPSGroupHeader();
         }
+
         /// <summary>
         /// Hides all user interface elements.
         /// </summary>
