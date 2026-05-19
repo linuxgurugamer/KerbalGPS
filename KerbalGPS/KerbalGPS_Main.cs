@@ -63,7 +63,7 @@ namespace KerbStar
         public string EarthTime = "FALSE";
 
 
-        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_VisibleSatellites", groupName = GPS_GROUP, groupDisplayName = GPS_GROUP_DISPLAY_NAME, groupStartCollapsed = true)]
+        [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_VisibleSatellites", groupName = GPS_GROUP, groupStartCollapsed = true)]
         public UInt16 guNumSats;
 
         [KSPField(isPersistant = false, guiActive = true, guiName = "#KerbalGPS_UI_Position", groupName = GPS_GROUP, groupStartCollapsed = true)]
